@@ -10,8 +10,12 @@ logging.basicConfig(level=logging.DEBUG)
 
 def main(args):
     logging.debug("Weather Symphony Generator started")
+
+    date = args.date
+    if not date:
+        date = datetime.date.today()
     
-    data_loader = DummyLoader()
+    data_loader = DummyLoader(date)
     weather_data = data_loader.get_weather_data()
 
     scene_parser = SceneParser(weather_data)
