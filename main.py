@@ -1,6 +1,9 @@
 import argparse
 import datetime
 import logging
+from pathlib import Path
+
+import mido
 
 from data_loaders import DummyLoader
 from components import SceneParser, HarmonyGenerator
@@ -8,8 +11,20 @@ from components.sections import StringSection
 
 logging.basicConfig(level=logging.DEBUG)
 
+ACTIVE_SECTIONS = [StringSection]
+
+def performSections(weather_data, scenes, harmony):
+    performances = []
+    for s in ACTIVE_SECTIONS:
+        section = s(weather_data, scenes, harmony)
+        performances.append(section.perform())
+
+    return performances
+
 def main(args):
     logging.debug("Weather Symphony Generator started")
+
+    args.output.parent.mkdir(parents=True, exist_ok=True)
 
     date = args.date
     if not date:
@@ -24,16 +39,19 @@ def main(args):
     harmony_generator = HarmonyGenerator(weather_data, scenes)
     harmony = harmony_generator.get_harmony()
 
-    sections = [StringSection]
+    performances = performSections(weather_data, scenes, harmony)
 
-    for s in sections:
-        section = s(weather_data, scenes, harmony)
-        performance = section.perform()
+    mid = mido.MidiFile()
+    for performance in performances:
+        mid.tracks.append(performance)
+    
+    mid.save(args.output)
     
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('-d', '--date', default=None, type=datetime.date.fromisoformat)
+    parser.add_argument('-o', '--output', default=Path(__file__).absolute().parent / "output/ws.midi", type=Path)
 
     args = parser.parse_args()
     main(args)

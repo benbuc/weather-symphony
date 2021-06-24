@@ -15,3 +15,5 @@ class SceneParser:
                 scenes.append(Scene.THUNDERSTORM)
             else:
                 scenes.append(Scene.MILD_SUMMER)
+
+        return scenes
