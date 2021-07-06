@@ -8,6 +8,7 @@ import mido
 from data_loaders import DummyLoader
 from components import SceneParser, HarmonyGenerator
 from components.sections import StringSection
+from music import Meter
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -42,10 +43,16 @@ def main(args):
     performances = performSections(weather_data, scenes, harmony)
 
     mid = mido.MidiFile()
+    mid.ticks_per_beat = Meter.ticks_per_beat
     for performance in performances:
         mid.tracks.append(performance)
     
     mid.save(args.output)
+    output = mido.open_output('Weather Symphony', virtual=True)
+    for msg in mid.play(meta_messages=True):
+        if msg.is_meta:
+            continue
+        output.send(msg)
     
 
 if __name__ == "__main__":
