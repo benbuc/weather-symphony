@@ -2,10 +2,11 @@ import argparse
 import datetime
 import logging
 from pathlib import Path
+import os
 
 import mido
 
-from data_loaders import DummyLoader
+from data_loaders import APIFileLoader
 from components import SceneParser, HarmonyGenerator
 from components.sections import StringSection
 from music import Meter
@@ -27,11 +28,12 @@ def main(args):
 
     args.output.parent.mkdir(parents=True, exist_ok=True)
 
-    date = args.date
-    if not date:
-        date = datetime.date.today()
+    # date = args.date
+    # if not date:
+    #     date = datetime.date.today()
+    date =  datetime.date(2021, 7, 6)
     
-    data_loader = DummyLoader(date)
+    data_loader = APIFileLoader("./weather_data/berlin_2021_07_06.json", date)
     weather_data = data_loader.get_weather_data()
 
     scene_parser = SceneParser(weather_data)
@@ -48,11 +50,13 @@ def main(args):
         mid.tracks.append(performance)
     
     mid.save(args.output)
-    output = mido.open_output('Weather Symphony', virtual=True)
-    for msg in mid.play(meta_messages=True):
-        if msg.is_meta:
-            continue
-        output.send(msg)
+    if os.name == "nt": # Windows
+        logging.info("Starting live audio for windows")
+        output = mido.open_output()
+        for msg in mid.play(meta_messages=True):
+            if msg.is_meta:
+                continue
+            output.send(msg)
     
 
 if __name__ == "__main__":
