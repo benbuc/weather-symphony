@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "weather_symphony"
+version = "0.1.0"
+description = ""
+authors = ["Benito Buchheim <benito.buchheim@student.hpi.de>"]
+
+[tool.poetry.scripts]
+ws = "weather_symphony:main.cli"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+mido = "^1.2.10"
+python-rtmidi = "^1.4.9"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

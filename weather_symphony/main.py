@@ -6,10 +6,10 @@ import os
 
 import mido
 
-from data_loaders import APIFileLoader
-from components import SceneParser, HarmonyGenerator
-from components.sections import StringSection
-from music import Meter
+from weather_symphony.data_loaders import APIFileLoader
+from weather_symphony.components import SceneParser, HarmonyGenerator
+from weather_symphony.components.sections import StringSection
+from weather_symphony.music import Meter
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -57,9 +57,11 @@ def main(args):
             if msg.is_meta:
                 continue
             output.send(msg)
+    else:
+        os.system(f"timidity {args.output}")
     
 
-if __name__ == "__main__":
+def cli():
     parser = argparse.ArgumentParser()
     parser.add_argument('-d', '--date', default=None, type=datetime.date.fromisoformat)
     parser.add_argument('-o', '--output', default=Path(__file__).absolute().parent / "output/ws.midi", type=Path)

@@ -4,7 +4,7 @@ import mido
 
 from .Section import Section
 from .. import Scene
-from music import Track
+from weather_symphony.music import Track
 
 class StringSection(Section):
 
@@ -17,7 +17,7 @@ class StringSection(Section):
         logging.debug("Performing Strings")
 
         for i in range(24):
-            if self.scenes[i] == Scene.MILD_SUMMER:
+            if self.scenes[i] == Scene.NIGHT_CHILLY:
                 self.track.addNote(64, i*16, 16)
             else:
                 self.track.addNote(32, i*16, 8)
