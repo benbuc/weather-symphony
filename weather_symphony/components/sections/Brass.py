@@ -7,12 +7,12 @@ from .Section import Section
 from .. import Scene
 from weather_symphony.music import Track, Meter
 
-class StringSection(Section):
+class BrassSection(Section):
 
     def __init__(self, *args):
         super().__init__(*args)
         
-        self.track = Track(48)
+        self.track = Track(72)
 
     def generate_rhythm(self, max_subdivs, repeat_beats=True):
         """
@@ -47,20 +47,20 @@ class StringSection(Section):
             max_subdivs = 1
             repeat_beats = False
             if self.scenes[i] == Scene.CLEAR_NICE:
-                max_subdivs = 2
+                max_subdivs = 1
                 repeat_beats = False
             elif self.scenes[i] == Scene.ANY:
-                max_subdivs = 8
+                max_subdivs = 4
                 repeat_beats = False
             elif self.scenes[i] == Scene.BROKEN_RAINY:
-                max_subdivs = 4
+                max_subdivs = 2
 
             rhythm = self.generate_rhythm(max_subdivs, repeat_beats=repeat_beats)
 
             time_in_beat = 0
             for duration in rhythm:
                 degree = randint(1,8)
-                note = self.key.get_note(degree, octave=3)
+                note = self.key.get_note(degree, octave=4)
                 self.track.add_note(note, bar_base_time + time_in_beat, duration)
                 time_in_beat += duration
 

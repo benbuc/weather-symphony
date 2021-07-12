@@ -8,12 +8,12 @@ import mido
 
 from weather_symphony.data_loaders import APIFileLoader
 from weather_symphony.components import SceneParser, HarmonyGenerator
-from weather_symphony.components.sections import StringSection
+from weather_symphony.components.sections import StringSection, BrassSection
 from weather_symphony.music import Meter
 
 logging.basicConfig(level=logging.DEBUG)
 
-ACTIVE_SECTIONS = [StringSection]
+ACTIVE_SECTIONS = [StringSection, BrassSection]
 
 def performSections(weather_data, scenes, harmony):
     performances = []
@@ -26,7 +26,8 @@ def performSections(weather_data, scenes, harmony):
 def main(args):
     logging.debug("Weather Symphony Generator started")
 
-    args.output.parent.mkdir(parents=True, exist_ok=True)
+    if args.output:
+        args.output.parent.mkdir(parents=True, exist_ok=True)
 
     # date = args.date
     # if not date:
@@ -49,7 +50,8 @@ def main(args):
     for performance in performances:
         mid.tracks.append(performance)
     
-    mid.save(args.output)
+    if args.output:
+        mid.save(args.output)
     if os.name == "nt": # Windows
         logging.info("Starting live audio for windows")
         output = mido.open_output()
@@ -58,13 +60,14 @@ def main(args):
                 continue
             output.send(msg)
     else:
-        os.system(f"timidity {args.output}")
+        if args.output:
+            os.system(f"timidity {args.output}")
     
 
 def cli():
     parser = argparse.ArgumentParser()
     parser.add_argument('-d', '--date', default=None, type=datetime.date.fromisoformat)
-    parser.add_argument('-o', '--output', default=Path(__file__).absolute().parent / "output/ws.midi", type=Path)
+    parser.add_argument('-o', '--output', type=Path)
 
     args = parser.parse_args()
     main(args)

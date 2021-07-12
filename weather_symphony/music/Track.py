@@ -10,9 +10,13 @@ class Track:
         # contains tuples of (time, note_id, note on or off)
         self.notes = []
 
-    def addNote(self, note, start, duration):
+    def add_note(self, note, start, duration):
         self.notes.append((start, note, 'note_on'))
         self.notes.append((start+duration, note, 'note_off'))
+
+    def midi_time_for_note(self, note_time):
+        multiplier = (Meter.ticks_per_beat * Meter.beats_per_bar) // Meter.max_subdivs
+        return note_time * multiplier
 
     def export(self):
         self.notes.sort()
@@ -24,7 +28,7 @@ class Track:
         last_message_time = 0
 
         for note in self.notes:
-            current_time = note[0] * (Meter.ticks_per_beat // Meter.max_subdivs)
+            current_time = self.midi_time_for_note(note[0])
             time_diff = current_time - last_message_time
             last_message_time = current_time
 
