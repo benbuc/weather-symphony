@@ -15,14 +15,16 @@ logging.basicConfig(level=logging.DEBUG)
 
 ACTIVE_SECTIONS = [
     StringSection,
-#    BrassSection
+    BrassSection
 ]
 
 def performSections(weather_data, scenes, harmony):
     performances = []
+    section_num = 0
     for s in ACTIVE_SECTIONS:
-        section = s(weather_data, scenes, harmony)
+        section = s(section_num, weather_data, scenes, harmony)
         performances.append(section.perform())
+        section_num += 1
 
     return performances
 

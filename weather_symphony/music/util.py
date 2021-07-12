@@ -2,7 +2,17 @@ from random import random
 
 from weather_symphony.music import Meter
 
-def generate_rhythm(max_subdivs, repeat_beats=True):
+def default_octave(note):
+    # map notes to the lowest piano octave
+    # MIDI Code for C1 is 24 
+    # octaves are calculated based on this C
+    return note % 12 + 24
+
+def at_octave(note, octave):
+    note = default_octave(note)
+    return note + 12*(octave-1)
+
+def generate_random_rhythm(max_subdivs, repeat_beats=True):
         """
         Returns an array of note durations
         The sum has to span a full bar

@@ -3,9 +3,10 @@ import mido
 from . import Meter
 
 class Track:
-    def __init__(self, program):
+    def __init__(self, program, channel):
 
         self.program = program
+        self.channel = channel
 
         # contains tuples of (time, note_id, note on or off)
         self.notes = []
@@ -22,7 +23,7 @@ class Track:
         self.notes.sort()
 
         track = mido.MidiTrack()
-        track.append(mido.Message('program_change', program=self.program, time=0))
+        track.append(mido.Message('program_change', program=self.program, channel=self.channel, time=0))
         track.append(mido.MetaMessage('set_tempo', tempo=mido.bpm2tempo(Meter.bpm)))
 
         last_message_time = 0
@@ -32,7 +33,7 @@ class Track:
             time_diff = current_time - last_message_time
             last_message_time = current_time
 
-            msg = mido.Message(note[2], note=note[1], velocity=127, time=time_diff)
+            msg = mido.Message(note[2], note=note[1], velocity=127, channel=self.channel, time=time_diff)
             track.append(msg)
 
         return track

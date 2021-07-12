@@ -1,67 +1,45 @@
 import logging
 from random import randint
 
-import mido
-
 from .Section import Section
 from .. import Scene
 from weather_symphony.music import Track, Meter
+from weather_symphony.music import util as mutil
+from weather_symphony.music.Chords import Chord
 
 class BrassSection(Section):
 
     def __init__(self, *args):
         super().__init__(*args)
         
-        self.track = Track(61)
+        self.track_tuba = Track(58, self.channel_num)
 
-    def generate_rhythm(self, max_subdivs, repeat_beats=True):
-        """
-        Returns an array of note durations
-        The sum has to span a full bar
+    def create_new_rhythm(self, scene):
+        self.rhythm = mutil.generate_random_rhythm(1, False)
 
-        max_subdivs per bar
-        if larger than 1 it repeats for every beat 
-        """
+    def perform_bar(self, bar_num):
+        bar_base_time = bar_num * Meter.max_subdivs
 
-        assert not repeat_beats or max_subdivs > Meter.beats_per_bar
-        assert max_subdivs <= Meter.max_subdivs
+        last_scene = self.scenes[bar_num-1] if bar_num > 0 else None
+        cur_scene = self.scenes[bar_num]
 
-        if repeat_beats and max_subdivs > Meter.beats_per_bar:
-            subdivs_per_beat = max_subdivs // Meter.beats_per_bar
-            shortest_dur = Meter.max_subdivs // max_subdivs
-            max_subdivided = [shortest_dur] *  (subdivs_per_beat // shortest_dur)
-            assert sum(max_subdivided) == (Meter.max_subdivs // Meter.beats_per_bar)
-        else:
-            shortest_dur = Meter.max_subdivs // max_subdivs
-            max_subdivided = [shortest_dur] * max_subdivs
-            assert sum(max_subdivided) == Meter.max_subdivs
+        if cur_scene != last_scene:
+            self.create_new_rhythm(cur_scene)
 
-        return max_subdivided
+        time_in_bar = 0
+        for duration in self.rhythm:
+            chord_root = self.key.get_note(self.chords[bar_num][0])
+            chord = Chord(chord_root, self.chords[bar_num][1])
+
+            for note in chord.get_all_notes():
+                self.track_tuba.add_note(mutil.at_octave(note, 3), bar_base_time + time_in_bar, duration)
+            time_in_bar += duration
 
     def perform(self):
         logging.debug("Performing Strings")
 
-        for i in range(24):
-            bar_base_time = i * Meter.max_subdivs
+        last_scene = None
+        for i in range(Meter.total_bars):
+            self.perform_bar(i)
 
-            max_subdivs = 1
-            repeat_beats = False
-            if self.scenes[i] == Scene.CLEAR_NICE:
-                max_subdivs = 1
-                repeat_beats = False
-            elif self.scenes[i] == Scene.ANY:
-                max_subdivs = 4
-                repeat_beats = False
-            elif self.scenes[i] == Scene.BROKEN_RAINY:
-                max_subdivs = 2
-
-            rhythm = self.generate_rhythm(max_subdivs, repeat_beats=repeat_beats)
-
-            time_in_beat = 0
-            for duration in rhythm:
-                degree = randint(1,8)
-                note = self.key.get_note(degree, octave=4)
-                self.track.add_note(note, bar_base_time + time_in_beat, duration)
-                time_in_beat += duration
-
-        return self.track.export()
+        return self.track_tuba.export()

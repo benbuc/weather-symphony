@@ -11,10 +11,21 @@ class StringSection(Section):
     def __init__(self, *args):
         super().__init__(*args)
         
-        self.track = Track(48)
+        self.track = Track(48, self.channel_num)
 
     def create_new_rhythm(self, scene):
-        self.rhythm = mutil.generate_rhythm(4, False)
+
+        max_subdivs = 4
+        repeated_beats = False
+        if scene == Scene.OVERCAST_THUNDERSTORM:
+            max_subdivs = 16
+            repeated_beats = True
+            density = 0.9 # TODO
+        elif scene == Scene.CLEAR_BROILING:
+            max_subdivs = 2
+            repeated_beats = False
+
+        self.rhythm = mutil.generate_random_rhythm(max_subdivs, repeated_beats)
 
     def perform_bar(self, bar_num):
         bar_base_time = bar_num * Meter.max_subdivs
@@ -28,14 +39,13 @@ class StringSection(Section):
         time_in_bar = 0
         for duration in self.rhythm:
             degree = randint(1,8)
-            note = self.key.get_note(degree, octave=2)
+            note = self.key.get_note(degree, octave=5)
             self.track.add_note(note, bar_base_time + time_in_bar, duration)
             time_in_bar += duration
 
     def perform(self):
         logging.debug("Performing Strings")
 
-        last_scene = None
         for i in range(Meter.total_bars):
             self.perform_bar(i)
 
