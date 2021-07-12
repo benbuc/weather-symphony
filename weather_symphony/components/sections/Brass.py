@@ -12,7 +12,7 @@ class BrassSection(Section):
     def __init__(self, *args):
         super().__init__(*args)
         
-        self.track = Track(72)
+        self.track = Track(61)
 
     def generate_rhythm(self, max_subdivs, repeat_beats=True):
         """

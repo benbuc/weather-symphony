@@ -1,6 +1,8 @@
 from enum import Enum, auto
 import logging
 
+from weather_symphony.music import Meter
+
 class Scene(Enum):
     ANY = auto()
     OVERCAST_THUNDERSTORM = auto()
@@ -75,6 +77,6 @@ class SceneParser:
         for hour in range(24):
             hour_data = {key:value[hour] for (key,value) in self.weather_data.items()}
 
-            scenes.append(match_scene(hour, hour_data))
+            scenes += [match_scene(hour, hour_data)] * (Meter.total_bars // 24)
 
         return scenes

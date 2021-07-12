@@ -13,7 +13,10 @@ from weather_symphony.music import Meter
 
 logging.basicConfig(level=logging.DEBUG)
 
-ACTIVE_SECTIONS = [StringSection, BrassSection]
+ACTIVE_SECTIONS = [
+    StringSection,
+#    BrassSection
+]
 
 def performSections(weather_data, scenes, harmony):
     performances = []
