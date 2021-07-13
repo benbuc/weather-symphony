@@ -1,17 +1,15 @@
 import logging
-from random import randint
 
-from .Section import Section
-from .. import Scene
-from weather_symphony.music import Track, Meter
+from weather_symphony.components.sections.Section import Section
+from weather_symphony.music import Meter, Track
 from weather_symphony.music import util as mutil
 from weather_symphony.music.Chords import Chord
 
-class BrassSection(Section):
 
+class BrassSection(Section):
     def __init__(self, *args):
         super().__init__(*args)
-        
+
         self.track_tuba = Track(58, self.channel_num)
 
     def create_new_rhythm(self, scene):
@@ -20,7 +18,7 @@ class BrassSection(Section):
     def perform_bar(self, bar_num):
         bar_base_time = bar_num * Meter.max_subdivs
 
-        last_scene = self.scenes[bar_num-1] if bar_num > 0 else None
+        last_scene = self.scenes[bar_num - 1] if bar_num > 0 else None
         cur_scene = self.scenes[bar_num]
 
         if cur_scene != last_scene:
@@ -32,13 +30,16 @@ class BrassSection(Section):
             chord = Chord(chord_root, self.chords[bar_num][1])
 
             for note in chord.get_all_notes():
-                self.track_tuba.add_note(mutil.at_octave(note, 3), bar_base_time + time_in_bar, duration)
+                self.track_tuba.add_note(
+                    mutil.at_octave(note, 3),
+                    bar_base_time + time_in_bar,
+                    duration,
+                )
             time_in_bar += duration
 
     def perform(self):
         logging.debug("Performing Strings")
 
-        last_scene = None
         for i in range(Meter.total_bars):
             self.perform_bar(i)
 

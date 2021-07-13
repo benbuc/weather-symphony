@@ -1,16 +1,16 @@
 import logging
 from random import randint
 
-from .Section import Section
-from .. import Scene
-from weather_symphony.music import Track, Meter
+from weather_symphony.components.SceneParser import Scene
+from weather_symphony.components.sections.Section import Section
+from weather_symphony.music import Meter, Track
 from weather_symphony.music import util as mutil
 
-class StringSection(Section):
 
+class StringSection(Section):
     def __init__(self, *args):
         super().__init__(*args)
-        
+
         self.track = Track(48, self.channel_num)
 
     def create_new_rhythm(self, scene):
@@ -20,7 +20,7 @@ class StringSection(Section):
         if scene == Scene.OVERCAST_THUNDERSTORM:
             max_subdivs = 16
             repeated_beats = True
-            density = 0.9 # TODO
+            # TODO density
         elif scene == Scene.CLEAR_BROILING:
             max_subdivs = 2
             repeated_beats = False
@@ -30,7 +30,7 @@ class StringSection(Section):
     def perform_bar(self, bar_num):
         bar_base_time = bar_num * Meter.max_subdivs
 
-        last_scene = self.scenes[bar_num-1] if bar_num > 0 else None
+        last_scene = self.scenes[bar_num - 1] if bar_num > 0 else None
         cur_scene = self.scenes[bar_num]
 
         if cur_scene != last_scene:
@@ -38,9 +38,13 @@ class StringSection(Section):
 
         time_in_bar = 0
         for duration in self.rhythm:
-            degree = randint(1,8)
+            degree = randint(1, 8)
             note = self.key.get_note(degree, octave=5)
-            self.track.add_note(note, bar_base_time + time_in_bar, duration)
+            self.track.add_note(
+                note,
+                bar_base_time + time_in_bar,
+                duration,
+            )
             time_in_bar += duration
 
     def perform(self):

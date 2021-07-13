@@ -1,6 +1,7 @@
 import mido
 
-from . import Meter
+from weather_symphony.music import Meter
+
 
 class Track:
     def __init__(self, program, channel):
@@ -12,8 +13,8 @@ class Track:
         self.notes = []
 
     def add_note(self, note, start, duration):
-        self.notes.append((start, note, 'note_on'))
-        self.notes.append((start+duration, note, 'note_off'))
+        self.notes.append((start, note, "note_on"))
+        self.notes.append((start + duration, note, "note_off"))
 
     def midi_time_for_note(self, note_time):
         multiplier = (Meter.ticks_per_beat * Meter.beats_per_bar) // Meter.max_subdivs
@@ -23,8 +24,12 @@ class Track:
         self.notes.sort()
 
         track = mido.MidiTrack()
-        track.append(mido.Message('program_change', program=self.program, channel=self.channel, time=0))
-        track.append(mido.MetaMessage('set_tempo', tempo=mido.bpm2tempo(Meter.bpm)))
+        track.append(
+            mido.Message(
+                "program_change", program=self.program, channel=self.channel, time=0
+            )
+        )
+        track.append(mido.MetaMessage("set_tempo", tempo=mido.bpm2tempo(Meter.bpm)))
 
         last_message_time = 0
 
@@ -33,7 +38,13 @@ class Track:
             time_diff = current_time - last_message_time
             last_message_time = current_time
 
-            msg = mido.Message(note[2], note=note[1], velocity=127, channel=self.channel, time=time_diff)
+            msg = mido.Message(
+                note[2],
+                note=note[1],
+                velocity=127,
+                channel=self.channel,
+                time=time_diff,
+            )
             track.append(msg)
 
         return track
