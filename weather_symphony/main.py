@@ -41,7 +41,7 @@ def main(args):
     #     date = datetime.date.today()
     date = datetime.date(2021, 7, 6)
 
-    data_loader = APIFileLoader("./weather_data/berlin_2021_07_06.json", date)
+    data_loader = APIFileLoader("./weather_data/test.json", date)
     weather_data = data_loader.get_weather_data()
 
     scene_parser = SceneParser(weather_data)

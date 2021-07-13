@@ -40,7 +40,7 @@ class BrassSection(Section):
     def perform(self):
         logging.debug("Performing Strings")
 
-        for i in range(Meter.total_bars):
+        for i in range(len(self.weather_data) * Meter.bars_per_hour):
             self.perform_bar(i)
 
         return self.track_tuba.export()

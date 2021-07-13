@@ -13,7 +13,7 @@ class HarmonyGenerator:
 
         chords = []
         last = (1, "maj")
-        for bar in range(Meter.total_bars):
+        for _ in range(len(self.weather_data) * Meter.bars_per_hour):
             if last == (1, "maj"):
                 possible_nexts = list(chord_graph_major.keys())
             else:
