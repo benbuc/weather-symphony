@@ -12,9 +12,9 @@ class Track:
         # contains tuples of (time, note_id, note on or off)
         self.notes = []
 
-    def add_note(self, note, start, duration):
-        self.notes.append((start, note, "note_on"))
-        self.notes.append((start + duration, note, "note_off"))
+    def add_note(self, note, start, duration, velocity=127):
+        self.notes.append((start, note, "note_on", velocity))
+        self.notes.append((start + duration, note, "note_off", velocity))
 
     def midi_time_for_note(self, note_time):
         multiplier = (Meter.ticks_per_beat * Meter.beats_per_bar) // Meter.max_subdivs
@@ -41,7 +41,7 @@ class Track:
             msg = mido.Message(
                 note[2],
                 note=note[1],
-                velocity=127,
+                velocity=note[3],
                 channel=self.channel,
                 time=time_diff,
             )

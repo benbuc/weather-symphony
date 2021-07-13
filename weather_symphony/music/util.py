@@ -10,9 +10,18 @@ def default_octave(note):
     return note % 12 + 24
 
 
+def shift_octave(note, octave):
+    return note + 12 * (octave - 1)
+
+
 def at_octave(note, octave):
     note = default_octave(note)
-    return note + 12 * (octave - 1)
+    return shift_octave(note, octave)
+
+
+# additional_octaves of 0 returns the note itself
+def notes_in_octave_range(note, additional_octaves):
+    return [shift_octave(note, octave + 1) for octave in range(additional_octaves + 1)]
 
 
 def generate_random_rhythm(max_subdivs, repeat_beats=True):

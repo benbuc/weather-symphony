@@ -2,6 +2,7 @@ import argparse
 import datetime
 import logging
 import os
+import random
 from pathlib import Path
 
 import mido
@@ -31,6 +32,8 @@ def performSections(weather_data, scenes, harmony):
 
 
 def main(args):
+    random.seed(0)
+
     logging.debug("Weather Symphony Generator started")
 
     if args.output:
@@ -41,7 +44,7 @@ def main(args):
     #     date = datetime.date.today()
     date = datetime.date(2021, 7, 6)
 
-    data_loader = APIFileLoader("./weather_data/test.json", date)
+    data_loader = APIFileLoader("./weather_data/test.yaml", date)
     weather_data = data_loader.get_weather_data()
 
     scene_parser = SceneParser(weather_data)

@@ -1,0 +1,94 @@
+- # NIGHT_CHILLY
+    feels_like: 270.0
+    humidity: 30
+    clouds: 100
+    visibility: 10000
+    wind_speed: 11
+    weather:
+        - id: 0
+- # NIGHT_WARM
+    feels_like: 300.0
+    humidity: 30
+    clouds: 100
+    visibility: 10000
+    wind_speed: 9
+    weather:
+        - id: 0
+- # OVERCAST_THUNDERSTORM
+    feels_like: 286.0
+    humidity: 30
+    clouds: 100
+    visibility: 10000
+    wind_speed: 1
+    rain:
+        1h: 10.0
+    weather:
+        - id: 201
+- # OVERCAST_WINDY
+    feels_like: 286.0
+    humidity: 30
+    clouds: 100
+    visibility: 10000
+    wind_speed: 16
+    rain:
+        1h: 10.0
+    weather:
+        - id: 502
+- # BROKEN_RAINY
+    feels_like: 286.0
+    humidity: 30
+    clouds: 80
+    visibility: 10000
+    wind_speed: 10
+    rain:
+        1h: 10.0
+    weather:
+        - id: 502
+- # BROKEN_GUSTY
+    feels_like: 286.0
+    humidity: 30
+    clouds: 80
+    visibility: 10000
+    wind_speed: 13
+    weather:
+        - id: 803
+- # SCATTERED_SWELTRY
+    feels_like: 310.0
+    humidity: 90
+    clouds: 30
+    visibility: 10000
+    wind_speed: 7
+    weather:
+        - id: 802
+- # SCATTERED_WINDY
+    feels_like: 286.0
+    humidity: 50
+    clouds: 30
+    visibility: 10000
+    wind_speed: 12
+    weather:
+        - id: 802
+- # CLEAR_BROILING
+    feels_like: 316.0
+    humidity: 50
+    clouds: 5
+    visibility: 10000
+    wind_speed: 0
+    weather:
+        - id: 800
+- # CLEAR_NICE
+    feels_like: 290.0
+    humidity: 50
+    clouds: 5
+    visibility: 10000
+    wind_speed: 3
+    weather:
+        - id: 800
+- # ANY
+    feels_like: 270.0
+    humidity: 0
+    clouds: 0
+    visibility: 10000
+    wind_speed: 9999
+    weather:
+        - id: 0

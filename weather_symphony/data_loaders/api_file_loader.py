@@ -1,5 +1,7 @@
 import json
 
+import yaml
+
 from weather_symphony.data_loaders.DataLoader import DataLoader
 
 
@@ -9,8 +11,12 @@ class APIFileLoader(DataLoader):
         self.file = file
 
     def get_weather_data(self):
-        json_data = json.load(open(self.file, "r"))
-        hourly_data = json_data["hourly"]
+        if self.file.endswith(".json"):
+            hourly_data = json.load(open(self.file, "r"))["hourly"]
+        elif self.file.endswith(".yaml"):
+            hourly_data = yaml.safe_load(open(self.file, "r"))
+        else:
+            raise ValueError("unknown file type")
 
         return [
             {
