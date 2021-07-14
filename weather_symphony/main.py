@@ -8,15 +8,15 @@ from pathlib import Path
 import mido
 
 from weather_symphony.components import HarmonyGenerator, SceneParser
-from weather_symphony.components.sections import BrassSection, StringSection
+from weather_symphony.components.sections import StringsSection, TrumpetsSection
 from weather_symphony.data_loaders import APIFileLoader
 from weather_symphony.music import Meter
 
 logging.basicConfig(level=logging.DEBUG)
 
 ACTIVE_SECTIONS = [
-    StringSection,
-    BrassSection,
+    StringsSection,
+    TrumpetsSection,
 ]
 
 

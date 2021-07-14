@@ -1,7 +1,7 @@
-from weather_symphony.components.sections.brass import BrassSection
-from weather_symphony.components.sections.strings import StringSection
+from weather_symphony.components.sections.strings import StringsSection
+from weather_symphony.components.sections.trumpets import TrumpetsSection
 
 __all__ = [
-    "BrassSection",
-    "StringSection",
+    "TrumpetsSection",
+    "StringsSection",
 ]
