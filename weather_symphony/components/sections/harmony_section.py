@@ -66,6 +66,13 @@ class HarmonySection(Section):
             self.create_new_rhythm(cur_scene)
             self.create_motif()
 
+        if (
+            bar_num + 1 == len(self.weather_data) * Meter.bars_per_hour
+            and len(self.rhythm) > 0
+        ):
+            self.mode = "chords"
+            self.rhythm = [Meter.max_subdivs]
+
         if self.mode == "chords":
             self.perform_chords(bar_num)
         elif self.mode == "arpeggios":
@@ -137,7 +144,7 @@ class HarmonySection(Section):
             time_in_bar += duration
 
     def calculate_velocity_outline(self):
-        # takes the wind data for the velocity at smoothes it
+        # takes the wind data for the velocity and smoothes it
         outline = []
 
         for hour in self.weather_data:
@@ -153,11 +160,18 @@ class HarmonySection(Section):
         for i, vel in enumerate(outline, 1):
             cumulated_sum.append(cumulated_sum[i - 1] + vel)
             if i >= smoothness:
-                smoothed_outline.append(
-                    (cumulated_sum[i] - cumulated_sum[i - smoothness]) // smoothness
-                )
+                smoothed_vel = (
+                    cumulated_sum[i] - cumulated_sum[i - smoothness]
+                ) // smoothness
             else:
-                smoothed_outline.append(vel)
+                smoothed_vel = vel
+
+            if (i - 1) % Meter.max_subdivs == 0:
+                smoothed_vel *= 1.2
+            elif (i - 1) % (Meter.max_subdivs // 2) == 0:
+                smoothed_vel *= 1.1
+
+            smoothed_outline.append(int(min(smoothed_vel, 127)))
 
         self.velocities = smoothed_outline
 
