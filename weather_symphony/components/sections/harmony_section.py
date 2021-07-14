@@ -95,13 +95,6 @@ class HarmonySection(Section):
 
         return random.sample(possible_notes, notes_in_voicing)
 
-    # TODO: move to utils
-    def map_range(self, value, origin_min, origin_max, target_min, target_max):
-        new_value = target_min + (value - origin_min) * (target_max - target_min) / (
-            origin_max - origin_min
-        )
-        return min(max(new_value, target_min), target_max)
-
     def perform_chords(self, bar_num):
         bar_base_time = bar_num * Meter.max_subdivs
 
@@ -145,11 +138,17 @@ class HarmonySection(Section):
 
     def calculate_velocity_outline(self):
         # takes the wind data for the velocity and smoothes it
+        scene_add = {
+            Scene.OVERCAST_THUNDERSTORM: 100,
+        }
         outline = []
 
-        for hour in self.weather_data:
+        for i, hour in enumerate(self.weather_data):
+            add = 0
+            if self.scenes[i * Meter.bars_per_hour] in scene_add.keys():
+                add = scene_add[self.scenes[i * Meter.bars_per_hour]]
             outline += (
-                [int(self.map_range(hour["wind"], *self.velocity_range_map))]
+                [int(mutil.map_range(hour["wind"], *self.velocity_range_map)) + add]
                 * Meter.max_subdivs
                 * Meter.bars_per_hour
             )

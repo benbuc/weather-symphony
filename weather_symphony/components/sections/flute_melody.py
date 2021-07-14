@@ -14,7 +14,8 @@ class FluteMelody(Section):
         super().__init__(*args)
 
         self.track = Track(73, self.channel_num)
-        self.base_octave = 5
+        self.base_octave = 4
+        self.velocity_range_map = (0, 20, 40, 110)
 
     def create_new_rhythm(self, scene):
         # settings are tuple of
@@ -67,16 +68,16 @@ class FluteMelody(Section):
 
         expanded_motif = self.motif[0] * self.motif[1]
 
+        time_in_bar = 0
         if bar_num + 1 == len(self.weather_data) * Meter.bars_per_hour:
             self.track.add_note(
                 scale.get_note(scale.root, self.base_octave),
                 bar_base_time,
                 Meter.max_subdivs,
-                100,
+                self.velocities[bar_base_time + time_in_bar],
             )
             return
 
-        time_in_bar = 0
         for i, duration in enumerate(self.rhythm):
             note = scale.get_note(expanded_motif[i], self.base_octave)
 
@@ -84,8 +85,46 @@ class FluteMelody(Section):
 
             time_in_bar += duration
 
+    def calculate_velocity_outline(self):
+        # takes the wind data for the velocity and smoothes it
+        scene_add = {}
+        outline = []
+
+        for i, hour in enumerate(self.weather_data):
+            add = 0
+            if self.scenes[i * Meter.bars_per_hour] in scene_add.keys():
+                add = scene_add[self.scenes[i * Meter.bars_per_hour]]
+            outline += (
+                [int(mutil.map_range(hour["wind"], *self.velocity_range_map)) + add]
+                * Meter.max_subdivs
+                * Meter.bars_per_hour
+            )
+
+        smoothness = Meter.max_subdivs // 2
+        smoothed_outline = []
+        cumulated_sum = [0]
+        for i, vel in enumerate(outline, 1):
+            cumulated_sum.append(cumulated_sum[i - 1] + vel)
+            if i >= smoothness:
+                smoothed_vel = (
+                    cumulated_sum[i] - cumulated_sum[i - smoothness]
+                ) // smoothness
+            else:
+                smoothed_vel = vel
+
+            if (i - 1) % Meter.max_subdivs == 0:
+                smoothed_vel *= 1.2
+            elif (i - 1) % (Meter.max_subdivs // 2) == 0:
+                smoothed_vel *= 1.1
+
+            smoothed_outline.append(int(min(smoothed_vel, 127)))
+
+        self.velocities = smoothed_outline
+
     def perform(self):
         logging.debug(f"Performing {type(self).__name__}")
+
+        self.calculate_velocity_outline()
 
         for bar_num in range(len(self.weather_data) * Meter.bars_per_hour):
             self.perform_bar(bar_num)

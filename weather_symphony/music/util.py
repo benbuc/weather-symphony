@@ -56,3 +56,10 @@ def generate_random_rhythm(max_subdivs, repeat_beats=True, density=0.5):
         rhythm = rhythm * Meter.beats_per_bar
 
     return rhythm
+
+
+def map_range(value, origin_min, origin_max, target_min, target_max):
+    new_value = target_min + (value - origin_min) * (target_max - target_min) / (
+        origin_max - origin_min
+    )
+    return min(max(new_value, target_min), target_max)
