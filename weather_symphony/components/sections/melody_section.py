@@ -23,7 +23,7 @@ class MelodySection(Section):
         max_subdivs = settings[1]
         density = settings[2]
 
-        if random.random() < settings[0] or max_subdivs == 0:
+        if random.random() > settings[0] or max_subdivs == 0:
             self.rhythm = []
             return
 
@@ -67,7 +67,12 @@ class MelodySection(Section):
         for i, duration in enumerate(self.rhythm):
             note = scale.get_note(expanded_motif[i], self.base_octave)
 
-            self.track.add_note(note, bar_base_time + time_in_bar, duration, 100)
+            self.track.add_note(
+                note,
+                bar_base_time + time_in_bar,
+                duration,
+                self.velocities[bar_base_time + time_in_bar],
+            )
 
             time_in_bar += duration
 

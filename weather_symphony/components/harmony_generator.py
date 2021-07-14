@@ -1,5 +1,6 @@
 from random import randint
 
+from weather_symphony.components.scene_parser import Scene
 from weather_symphony.music import Meter
 from weather_symphony.music.key import Major
 
@@ -14,15 +15,30 @@ class HarmonyGenerator:
         inverted_chord_graph = invert_graph(chord_graph_major)
 
         total_bars = len(self.weather_data) * Meter.bars_per_hour
+
+        keys = [Major(24)]
+        for bar_num in range(1, total_bars):
+            if (
+                self.scenes[bar_num - 1] == Scene.OVERCAST_THUNDERSTORM
+                and self.scenes[bar_num] != Scene.OVERCAST_THUNDERSTORM
+            ):
+                keys.append(Major(keys[bar_num - 1].root + 7))
+                continue
+            if (
+                self.scenes[bar_num - 1] != Scene.CLEAR_NICE
+                and self.scenes[bar_num] == Scene.CLEAR_NICE
+            ):
+                keys.append(Major(keys[bar_num - 1].root + 2))
+
+            keys.append(keys[bar_num - 1])
+
         chords = [None] * (total_bars - 1) + [(1, "maj")]
-        keys = [None] * (total_bars - 1) + [Major(24)]
 
         for bar_num in reversed(range(total_bars - 1)):
             possible_prev = [(1, "maj")] + inverted_chord_graph[chords[bar_num + 1]]
 
             sampled_prev = possible_prev[randint(0, len(possible_prev) - 1)]
             chords[bar_num] = sampled_prev
-            keys[bar_num] = keys[bar_num + 1]
 
         return {
             "keys": keys,

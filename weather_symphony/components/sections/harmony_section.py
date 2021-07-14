@@ -78,7 +78,7 @@ class HarmonySection(Section):
         elif self.mode == "arpeggios":
             self.perform_arpeggios(bar_num)
 
-    def get_voicing(self, chord, notes_in_voicing=3):
+    def get_voicing(self, chord, notes_in_voicing=2):
         additional_octaves = 1
         if self.mode == "arpeggios":
             additional_octaves = 0
@@ -170,7 +170,7 @@ class HarmonySection(Section):
             elif (i - 1) % (Meter.max_subdivs // 2) == 0:
                 smoothed_vel *= 1.1
 
-            smoothed_outline.append(int(min(smoothed_vel, 127)))
+            smoothed_outline.append(int(min(smoothed_vel, self.velocity_range_map[3])))
 
         self.velocities = smoothed_outline
 

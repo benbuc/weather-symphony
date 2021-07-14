@@ -12,13 +12,21 @@ from weather_symphony.components.sections import (
     FluteMelody,
     StringsSection,
     TrumpetsSection,
+    TubaSection,
+    ViolinMelody,
 )
 from weather_symphony.data_loaders import APIFileLoader
 from weather_symphony.music import Meter
 
 logging.basicConfig(level=logging.DEBUG)
 
-ACTIVE_SECTIONS = [StringsSection, TrumpetsSection, FluteMelody]
+ACTIVE_SECTIONS = [
+    StringsSection,
+    TrumpetsSection,
+    FluteMelody,
+    TubaSection,
+    ViolinMelody,
+]
 
 
 def performSections(weather_data, scenes, harmony):
