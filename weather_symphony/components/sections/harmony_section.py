@@ -11,7 +11,7 @@ from weather_symphony.music.chords import Chord
 class HarmonySection(Section):
     def create_new_rhythm(self, scene):
         # rhythm settings are a tuple of
-        # (max_subdivs, prob of repeatin beats, density)
+        # (max_subdivs, prob of repeating beats, density)
         # and set in the subclasses
 
         settings = (4, 0.0, 0.5)
@@ -98,7 +98,7 @@ class HarmonySection(Section):
     def perform_chords(self, bar_num):
         bar_base_time = bar_num * Meter.max_subdivs
 
-        chord_root = self.key.get_note(self.chords[bar_num][0])
+        chord_root = self.keys[bar_num].get_note(self.chords[bar_num][0])
         chord = Chord(chord_root, self.chords[bar_num][1])
 
         time_in_bar = 0
@@ -117,7 +117,7 @@ class HarmonySection(Section):
     def perform_arpeggios(self, bar_num):
         bar_base_time = bar_num * Meter.max_subdivs
 
-        chord_root = self.key.get_note(self.chords[bar_num][0])
+        chord_root = self.keys[bar_num].get_note(self.chords[bar_num][0])
         chord = Chord(chord_root, self.chords[bar_num][1])
         voicing = self.get_voicing(chord, notes_in_voicing=len(self.motif[0]))
 

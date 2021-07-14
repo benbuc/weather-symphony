@@ -12,8 +12,9 @@ class HarmonyGenerator:
     def get_harmony(self):
 
         chords = []
+        keys = []
         last = (1, "maj")
-        for _ in range(len(self.weather_data) * Meter.bars_per_hour):
+        for bar_num in range(len(self.weather_data) * Meter.bars_per_hour):
             if last == (1, "maj"):
                 possible_nexts = list(chord_graph_major.keys())
             else:
@@ -23,8 +24,13 @@ class HarmonyGenerator:
             chords.append(sampled_next)
             last = sampled_next
 
+            if bar_num > 10:
+                keys.append(Major(26))
+            else:
+                keys.append(Major(24))
+
         return {
-            "key": Major(24),  # C Major
+            "keys": keys,
             "chords": chords,
         }
 

@@ -7,7 +7,7 @@ class Section:
         self.weather_data = weather_data
         self.scenes = scenes
         self.harmonic_outline = harmonic_outline
-        self.key = harmonic_outline["key"]
+        self.keys = harmonic_outline["keys"]
         self.chords = harmonic_outline["chords"]
 
     @abstractmethod

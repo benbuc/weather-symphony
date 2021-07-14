@@ -19,3 +19,10 @@ class Major(Key):
         super().__init__(*args)
 
         self.intervals = [2, 2, 1, 2, 2, 2, 1]
+
+
+class Minor(Key):
+    def __init__(self, *args):
+        super().__init__(*args)
+
+        self.intervals = [2, 1, 2, 2, 1, 2, 2]
