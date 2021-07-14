@@ -1,7 +1,7 @@
 from random import randint
 
 from weather_symphony.music import Meter
-from weather_symphony.music.Key import Major
+from weather_symphony.music.key import Major
 
 
 class HarmonyGenerator:

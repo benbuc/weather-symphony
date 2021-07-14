@@ -1,9 +1,9 @@
 import logging
 
-from weather_symphony.components.sections.Section import Section
+from weather_symphony.components.sections.section import Section
 from weather_symphony.music import Meter, Track
 from weather_symphony.music import util as mutil
-from weather_symphony.music.Chords import Chord
+from weather_symphony.music.chords import Chord
 
 
 class BrassSection(Section):

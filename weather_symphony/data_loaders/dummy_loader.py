@@ -1,6 +1,6 @@
 import random
 
-from weather_symphony.data_loaders.DataLoader import DataLoader
+from weather_symphony.data_loaders.data_loader import DataLoader
 
 
 class DummyLoader(DataLoader):

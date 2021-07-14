@@ -2,7 +2,7 @@ import json
 
 import yaml
 
-from weather_symphony.data_loaders.DataLoader import DataLoader
+from weather_symphony.data_loaders.data_loader import DataLoader
 
 
 class APIFileLoader(DataLoader):
