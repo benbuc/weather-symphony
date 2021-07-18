@@ -42,18 +42,10 @@ def performSections(weather_data, scenes, harmony):
     return performances
 
 
-def main(args):
-    random.seed(0)
+def get_mido(date, seed=0):
+    random.seed(seed)
 
     logging.debug("Weather Symphony Generator started")
-
-    if args.output:
-        args.output.parent.mkdir(parents=True, exist_ok=True)
-
-    # date = args.date
-    # if not date:
-    #     date = datetime.date.today()
-    date = datetime.date(2021, 7, 6)
 
     data_loader = APIFileLoader(
         "./weather_data/erftstadt_2021_07_15_flooding.json", date
@@ -72,6 +64,18 @@ def main(args):
     mid.ticks_per_beat = Meter.ticks_per_beat
     for performance in performances:
         mid.tracks.append(performance)
+
+    return mid
+
+
+def main(args):
+    if args.output:
+        args.output.parent.mkdir(parents=True, exist_ok=True)
+
+    date = args.date
+    if not date:
+        date = datetime.date.today()
+    mid = get_mido(args.date)
 
     if args.output:
         mid.save(args.output)
