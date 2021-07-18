@@ -14,7 +14,7 @@ class TubaSection(HarmonySection):
         self.rhythm_settings_arpeggios = {
             Scene.OVERCAST_THUNDERSTORM: (16, 0.9, 0.4),
             Scene.OVERCAST_WINDY: (16, 0.9, 0.2),
-            Scene.BROKEN_RAINY: (4, 0.6, 0.3),
+            Scene.BROKEN_RAINY: (8, 0.6, 0.3),
             Scene.BROKEN_GUSTY: (0, 0.9, 0.4),
             Scene.SCATTERED_WINDY: (0, 0.9, 0.4),
             Scene.SCATTERED_SWELTRY: (0, 0.0, 0.0),

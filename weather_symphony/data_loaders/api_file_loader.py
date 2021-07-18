@@ -27,7 +27,9 @@ class APIFileLoader(DataLoader):
                 "wind": data["wind_speed"],
                 "visibility": data["visibility"],
                 # https://openweathermap.org/weather-conditions#Weather-Condition-Codes-2
-                "weather_condition": data["weather"][0]["id"],
+                "weather_condition": [
+                    weather_condition["id"] for weather_condition in data["weather"]
+                ],
                 "rain": data["rain"]["1h"] if ("rain" in data) else 0,
                 "snow": data["snow"]["1h"] if ("snow" in data) else 0,
             }

@@ -10,6 +10,7 @@ import mido
 from weather_symphony.components import HarmonyGenerator, SceneParser
 from weather_symphony.components.sections import (
     FluteMelody,
+    PercussionSection,
     StringsSection,
     TrumpetsSection,
     TubaSection,
@@ -26,6 +27,7 @@ ACTIVE_SECTIONS = [
     FluteMelody,
     TubaSection,
     ViolinMelody,
+    PercussionSection,
 ]
 
 
@@ -53,7 +55,9 @@ def main(args):
     #     date = datetime.date.today()
     date = datetime.date(2021, 7, 6)
 
-    data_loader = APIFileLoader("./weather_data/test.yaml", date)
+    data_loader = APIFileLoader(
+        "./weather_data/erftstadt_2021_07_15_flooding.json", date
+    )
     weather_data = data_loader.get_weather_data()
 
     scene_parser = SceneParser(weather_data)

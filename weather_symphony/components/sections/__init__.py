@@ -1,4 +1,5 @@
 from weather_symphony.components.sections.flute_melody import FluteMelody
+from weather_symphony.components.sections.percussion import PercussionSection
 from weather_symphony.components.sections.strings import StringsSection
 from weather_symphony.components.sections.trumpets import TrumpetsSection
 from weather_symphony.components.sections.tuba import TubaSection
@@ -10,4 +11,5 @@ __all__ = [
     "FluteMelody",
     "TubaSection",
     "ViolinMelody",
+    "PercussionSection",
 ]

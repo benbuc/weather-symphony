@@ -35,8 +35,9 @@ class SceneParser:
             logging.warn("night but not chilly and not warm")
 
         if data["clouds"] > 98:
-            if data["weather_condition"] > 200 and data["weather_condition"] < 300:
-                return Scene.OVERCAST_THUNDERSTORM
+            for weather_condition in data["weather_condition"]:
+                if weather_condition > 200 and weather_condition < 300:
+                    return Scene.OVERCAST_THUNDERSTORM
 
             if data["wind"] > 8:
                 return Scene.OVERCAST_WINDY
