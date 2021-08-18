@@ -24,13 +24,12 @@ def notes_in_octave_range(note, additional_octaves):
     return [shift_octave(note, octave + 1) for octave in range(additional_octaves + 1)]
 
 
-def generate_random_rhythm(max_subdivs, repeat_beats=True, density=0.5):
+def generate_random_rhythm(max_subdivs, repeat_beats=True, density=0.5, rest=0.2):
     """
-    Returns an array of note durations
+    Returns an array of note or rest durations
     The sum has to span a full bar
 
     max_subdivs per bar
-    if larger than 1 it repeats for every beat
     """
 
     assert not repeat_beats or max_subdivs > Meter.beats_per_bar
@@ -45,12 +44,12 @@ def generate_random_rhythm(max_subdivs, repeat_beats=True, density=0.5):
         max_subdivided = [shortest_dur] * max_subdivs
         assert sum(max_subdivided) == Meter.max_subdivs
 
-    rhythm = max_subdivided[:1]
+    rhythm = [["rest" if random() < rest else "note", max_subdivided[1]]]
     for i in range(1, len(max_subdivided)):
         if random() < density:
-            rhythm.append(max_subdivided[i])
+            rhythm.append(["rest" if random() < rest else "note", max_subdivided[i]])
         else:
-            rhythm[-1] += max_subdivided[i]
+            rhythm[-1][1] += max_subdivided[i]
 
     if repeat_beats:
         rhythm = rhythm * Meter.beats_per_bar

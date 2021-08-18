@@ -64,7 +64,9 @@ class MelodySection(Section):
             )
             return
 
-        for i, duration in enumerate(self.rhythm):
+        for i, (note_type, duration) in enumerate(self.rhythm):
+            if note_type == "rest":
+                continue
             note = scale.get_note(expanded_motif[i], self.base_octave)
 
             self.track.add_note(

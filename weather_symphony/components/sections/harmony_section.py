@@ -71,7 +71,7 @@ class HarmonySection(Section):
             and len(self.rhythm) > 0
         ):
             self.mode = "chords"
-            self.rhythm = [Meter.max_subdivs]
+            self.rhythm = [["note", Meter.max_subdivs]]
 
         if self.mode == "chords":
             self.perform_chords(bar_num)
@@ -102,7 +102,9 @@ class HarmonySection(Section):
         chord = Chord(chord_root, self.chords[bar_num][1])
 
         time_in_bar = 0
-        for duration in self.rhythm:
+        for note_type, duration in self.rhythm:
+            if note_type == "rest":
+                continue
             voicing = self.get_voicing(chord)
 
             for note in voicing:
@@ -124,7 +126,9 @@ class HarmonySection(Section):
         expanded_motif = self.motif[0] * self.motif[1]
 
         time_in_bar = 0
-        for i, duration in enumerate(self.rhythm):
+        for i, (note_type, duration) in enumerate(self.rhythm):
+            if note_type == "rest":
+                continue
             note = voicing[expanded_motif[i] % len(voicing)]
 
             self.track.add_note(
