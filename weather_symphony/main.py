@@ -15,6 +15,7 @@ from weather_symphony.components.sections import (
     StringsSection,
     TrumpetsSection,
     TubaSection,
+    UpperStringsSection,
     XylophoneMelody,
 )
 from weather_symphony.data_loaders import APIFileLoader
@@ -24,6 +25,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 ACTIVE_SECTIONS = [
     StringsSection,
+    UpperStringsSection,
     TrumpetsSection,
     FluteMelody,
     TubaSection,
