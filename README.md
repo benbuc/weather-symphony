@@ -4,6 +4,10 @@
    ```bash
    curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/install-poetry.py | python -
    ```
+1. Install audio drivers if on server environment
+   ```bash
+   sudo apt install libasound2-dev
+   ```
 1. Install the dependencies
    ```bash
    poetry install
