@@ -77,7 +77,7 @@ def main(args):
     date = args.date
     if not date:
         date = datetime.date.today()
-    mid = get_mido(args.date)
+    mid = get_mido(date)
 
     if args.output:
         mid.save(args.output)

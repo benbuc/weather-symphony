@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <title>Sonification Project – Weather Symphony</title>
+    <style>
+      html, body {
+        text-align: start;
+        background-color: white;
+      }
+      ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+      }
+      li {
+        margin-bottom: 1em;
+      }
+      .coordInput {
+        display: inline-flex;
+        gap: 0.25em;
+      }
+      input {
+        outline: none;
+        border: thin solid black;
+      }
+      input:invalid {
+        border: thin solid red;
+        color: darkred;
+      }
+      ul#progressList {
+        max-width: 400px;
+      }
+      ul#progressList > li {
+        display: flex;
+        gap: 1em;
+      }
+      ul#progressList > li > * {
+        flex: 2 1 20em;
+      }
+      ul#progressList > li > :first-child {
+        flex: 1 1 10em;
+      }
+      ul#progressList progress.completed {
+        background-color: transparent;
+        position: relative;
+        flex: 0 0 0;
+        padding-right: 1em;
+      }
+      ul#progressList progress.completed::after {
+        position: absolute;
+        content: '✔';
+        color: green;
+        top: 0;
+      }
+    </style>
+  </head>
+
+  <body>
+    <h1>Weather Symphony</h1>
+    <main>
+      <ul>
+        <li>
+          <label for="coordLat" class="coordInput">
+            Latitude:
+            <input
+              type="number"
+              id="coordLat"
+              value="52.394"
+              min="-90.0"
+              max="90.0"
+              step="0.001"
+              pattern="^(\+|-)?(?:90(?:(?:\.0{1,3})?)|(?:[0-9]|[1-8][0-9])(?:(?:\.[0-9]{1,3})?))$"
+            />°
+            <output id="coordLatIndicator">N</output>
+          </label>
+          <label for="coordLong" class="coordInput">
+            Longitude:
+            <input
+              type="number"
+              id="coordLong"
+              value="13.133"
+              min="-180.0"
+              max="180.0"
+              step="0.001"
+              pattern="^(\+|-)?(?:180(?:(?:\.0{1,3})?)|(?:[0-9]|[1-9][0-9]|1[0-7][0-9])(?:(?:\.[0-9]{1,3})?))$"
+            />°
+            <output id="coordLongIndicator">E</output>
+          </label>
+          <button onclick="useDeviceLocation()">Use Device Location</button>
+        </li>
+        <li>
+          <label for="generatorSeed">
+            Seed:
+            <input type="number" id="generatorSeed" />
+          </label>
+        </li>
+        <li>
+        <li>
+          <label for="weatherDate">
+            Date:
+            <input type="date" id="weatherDate" />
+          </label>
+        </li>
+        <li>
+          <button onclick="loadWeatherSymphony()">Load<!--Pause/Play--></button>
+        </li>
+        <li>
+          <ul id="progressList"></ul>
+        </li>
+      </ul>
+    </main>
+    <script>
+      const latInput = document.getElementById("coordLat");
+      const latIndicator = document.getElementById("coordLatIndicator");
+      const longInput = document.getElementById("coordLong");
+      const longIndicator = document.getElementById("coordLongIndicator");
+      latInput.addEventListener("change", (evt) => {
+        const latitude = Number.parseFloat(latInput.value);
+        latIndicator.innerText = latitude < 0 ? "S" : "N";
+      });
+      longInput.addEventListener("change", (evt) => {
+        const longitude = Number.parseFloat(longInput.value);
+        longIndicator.innerText = longitude < 0 ? "W" : "E";
+      });
+
+      function useDeviceLocation() {
+        new Promise((resolve, reject) => {
+          navigator.geolocation.getCurrentPosition(resolve, reject, {
+            timeout: 1000,
+            enableHighAccuracy: true,
+          });
+        })
+          .then((position) => {
+            const { latitude, longitude } = position.coords;
+            console.log("lat", latitude, "long", longitude);
+            latInput.value = latitude.toFixed(3);
+            latInput.dispatchEvent(new CustomEvent("change"));
+            longInput.value = longitude.toFixed(3);
+            longInput.dispatchEvent(new CustomEvent("change"));
+          })
+          .catch((error) => {
+            alert(
+              `Geolocation API access failed: ${error.code} - ${error.message}`
+            );
+            console.error(error);
+          });
+      }
+
+      const datePicker = document.getElementById("weatherDate");
+      const today = new Date();
+      datePicker.valueAsDate = today;
+      datePicker.min = new Date().setDate(today.getDate() - 5);
+      datePicker.max = today;
+
+      const progressList = document.getElementById("progressList");
+
+      async function loadWeatherSymphony(evt) {
+        const requestDate = datePicker.valueAsDate;
+        const latitude = Number.parseFloat(latInput.value);
+        const longitude = Number.parseFloat(longInput.value);
+        const url = new URL(window.location.href + "api/");
+        const params = {
+          date: requestDate.toISOString().split("T")[0],
+          latitude,
+          longitude
+        };
+        url.search = new URLSearchParams(params).toString();
+        console.log(`Requesting MIDI`, params, url);
+
+        progressList.innerHTML = "";
+        fetch(url)
+          .then(response => {
+            const decoder = new TextDecoder();
+            let lineBuffer = "";
+
+            const reader = response.body.getReader();
+
+            reader.read().then(function processText({done, value}) {
+              lineBuffer += decoder.decode(value);
+
+              let eolIndex = lineBuffer.indexOf("\n\n");
+              while(eolIndex >= 0) {
+                let line = lineBuffer.slice(0, eolIndex);
+                processProgress(JSON.parse(line));
+                lineBuffer = lineBuffer.slice(eolIndex + 2);
+                eolIndex = lineBuffer.indexOf("\n\n");
+              }
+
+              if (done) {
+                lineBuffer = lineBuffer.trim();
+                if(lineBuffer.length > 0) {
+                  processProgress(JSON.parse(lineBuffer));
+                }
+                // processProgress({step: null});
+                console.log("done");
+                return;
+              }
+
+              return reader.read().then(processText);
+            });
+          });
+      }
+
+      let progress = {element: null, stepName: null};
+
+      async function processProgress(status) {
+        console.log(status, progress);
+
+        function setProgress(percentage) {
+          let element = progress.element;
+          let progressElement = element.querySelector("progress");
+          if(percentage == 100)
+            progressElement.classList.add("completed");
+          if(percentage !== null)
+            progressElement.value = percentage;
+          else
+            progressElement.removeAttribute("value");
+        }
+
+        if(status.step != progress.stepName) {
+          // finish current step
+          if(progress.element) setProgress(100);
+
+          // create new step
+          if(status.progress !== undefined) {
+            let element = document.createElement("li");
+            let progressElement = document.createElement("progress");
+            progressElement.max = 100;
+            outputElement = document.createElement("output");
+            outputElement.value = status.step;
+            element.appendChild(outputElement);
+            element.appendChild(progressElement);
+            progressList.appendChild(element);
+            progress.element = element;
+            progress.stepName = status.step;
+          }
+        }
+        if(status.progress !== undefined)
+          setProgress(status.progress);
+      }
+    </script>
+  </body>
+</html>
