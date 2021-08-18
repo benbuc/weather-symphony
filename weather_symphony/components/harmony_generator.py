@@ -2,7 +2,7 @@ from random import randint
 
 from weather_symphony.components.scene_parser import Scene
 from weather_symphony.music import Meter
-from weather_symphony.music.key import Major
+from weather_symphony.music.key import Major, Minor
 
 
 class HarmonyGenerator:
@@ -19,6 +19,11 @@ class HarmonyGenerator:
         keys = [Major(24)]
         for bar_num in range(1, total_bars):
             if (
+                self.scenes[bar_num - 1] != Scene.OVERCAST_THUNDERSTORM
+                and self.scenes[bar_num] == Scene.OVERCAST_THUNDERSTORM
+            ):
+                keys.append(Minor(keys[bar_num - 1].root))
+            if (
                 self.scenes[bar_num - 1] == Scene.OVERCAST_THUNDERSTORM
                 and self.scenes[bar_num] != Scene.OVERCAST_THUNDERSTORM
             ):
@@ -29,6 +34,7 @@ class HarmonyGenerator:
                 and self.scenes[bar_num] == Scene.CLEAR_NICE
             ):
                 keys.append(Major(keys[bar_num - 1].root + 2))
+                continue
 
             keys.append(keys[bar_num - 1])
 
@@ -48,11 +54,11 @@ class HarmonyGenerator:
 
 chord_graph_major = {
     (1, "maj"): [],
-    (2, "min"): [(1, "maj"), (5, "maj")],
+    (2, "min"): [(1, "maj"), (5, "maj7")],
     (3, "min"): [(6, "min")],
-    (4, "maj"): [(5, "maj")],
-    (5, "maj"): [(1, "maj")],
-    (6, "min"): [(5, "maj")],
+    (4, "maj"): [(5, "maj7")],
+    (5, "maj7"): [(1, "maj")],
+    (6, "min"): [(5, "maj7")],
 }
 
 

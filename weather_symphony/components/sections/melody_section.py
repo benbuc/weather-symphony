@@ -1,4 +1,5 @@
 import logging
+import math
 import random
 
 from weather_symphony.components.scene_parser import Scene
@@ -30,7 +31,22 @@ class MelodySection(Section):
         self.rhythm = mutil.generate_random_rhythm(max_subdivs, False, density)
 
     def create_motif(self):
-        self.motif = ([random.randint(1, 8) for _ in self.rhythm], 1)
+        # the scale degrees ordered subjectively by me by tension
+        # using the relaxed more oftenly hopefully distributes tension a bit better
+        degrees_by_tension = [1, 5, 4, 3, 2, 6, 7]
+
+        self.motif = (
+            [
+                degrees_by_tension[
+                    int(
+                        (1 - math.cos(random.random() * math.pi / 2))
+                        * len(degrees_by_tension)
+                    )
+                ]
+                for _ in self.rhythm
+            ],
+            1,
+        )
 
     def perform_bar(self, bar_num):
         last_scene = self.scenes[bar_num - 1] if bar_num > 0 else None
@@ -49,7 +65,7 @@ class MelodySection(Section):
         chord_root = self.keys[bar_num].get_note(self.chords[bar_num][0])
         chord = Chord(chord_root, self.chords[bar_num][1])
         scale = Major(chord_root)
-        if chord.quality == "min":
+        if chord.quality.startswith("min"):
             scale = Minor(chord_root)
 
         expanded_motif = self.motif[0] * self.motif[1]

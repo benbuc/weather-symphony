@@ -2,10 +2,17 @@ from weather_symphony.music import util as mutil
 
 
 class Chord:
-    intervals = {"maj": [4, 3], "min": [3, 4], "dim": [3, 3], "aug": [4, 4]}
+    intervals = {
+        "maj": [4, 3],
+        "min": [3, 4],
+        "dim": [3, 3],
+        "aug": [4, 4],
+        "maj7": [4, 3, 4],
+        "min7": [3, 4, 4],
+    }
 
     def __init__(self, root, quality):
-        assert quality in ["maj", "min"]
+        assert quality in ["maj", "min", "maj7"]
 
         self.root = mutil.default_octave(root)
         self.quality = quality
