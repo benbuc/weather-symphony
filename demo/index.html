@@ -126,10 +126,7 @@
 
       function useDeviceLocation() {
         new Promise((resolve, reject) => {
-          navigator.geolocation.getCurrentPosition(resolve, reject, {
-            timeout: 1000,
-            enableHighAccuracy: true,
-          });
+          navigator.geolocation.getCurrentPosition(resolve, reject);
         })
           .then((position) => {
             const { latitude, longitude } = position.coords;
