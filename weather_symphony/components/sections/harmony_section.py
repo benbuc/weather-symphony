@@ -14,7 +14,7 @@ class HarmonySection(Section):
         # (max_subdivs, prob of repeating beats, density)
         # and set in the subclasses
 
-        settings = (4, 0.0, 0.5)
+        settings = (4, 0.0, 0.5, 0.2)
         if self.mode == "chords":
             if scene in self.rhythm_settings_chords.keys():
                 settings = self.rhythm_settings_chords[scene]
@@ -25,12 +25,15 @@ class HarmonySection(Section):
         max_subdivs = settings[0]
         repeated_beats = True if random.random() < settings[1] else False
         density = settings[2]
+        rest = settings[3]
 
         if max_subdivs == 0:
             self.rhythm = []
             return
 
-        self.rhythm = mutil.generate_random_rhythm(max_subdivs, repeated_beats, density)
+        self.rhythm = mutil.generate_random_rhythm(
+            max_subdivs, repeated_beats, density, rest
+        )
 
     def select_mode(self, scene):
         prob = 0.5

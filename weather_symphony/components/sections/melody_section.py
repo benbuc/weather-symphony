@@ -16,19 +16,20 @@ class MelodySection(Section):
         # (probability section plays, max_subdivs, density)
         # set in subclass
 
-        settings = (0.0, 0, 0.0)
+        settings = (0.0, 0, 0.0, 0.0)
 
         if scene in self.rhythm_settings.keys():
             settings = self.rhythm_settings[scene]
 
         max_subdivs = settings[1]
         density = settings[2]
+        rest = settings[3]
 
         if random.random() > settings[0] or max_subdivs == 0:
             self.rhythm = []
             return
 
-        self.rhythm = mutil.generate_random_rhythm(max_subdivs, False, density)
+        self.rhythm = mutil.generate_random_rhythm(max_subdivs, False, density, rest)
 
     def create_motif(self):
         # the scale degrees ordered subjectively by me by tension
