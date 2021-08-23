@@ -1,21 +1,33 @@
-## Development Setup
+# Development Setup
 
 1. Install [poetry](https://github.com/python-poetry/poetry)
    ```bash
    curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/install-poetry.py | python -
    ```
-1. Install audio drivers if on server environment
+2. Install audio drivers if on server environment
    ```bash
    sudo apt install libasound2-dev
    ```
-1. Install the dependencies
+3. Install the dependencies
    ```bash
    poetry install
    ```
-1. Install the [pre-commit](https://github.com/pre-commit/pre-commit) hooks
+4. Install the [pre-commit](https://github.com/pre-commit/pre-commit) hooks
    ```bash
    pre-commit install
    ```
+5. Run with uvicorn in development mode
+   ```bash
+   poetry run uvicorn demo.main:app --reload
+   ```
+
+# Run
+
+Install poetry like in development setup, then:
+
+```bash
+poetry run uvicorn demo.main:app
+```
 
 # Scenes
 
