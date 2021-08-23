@@ -29,6 +29,20 @@ Install poetry like in development setup, then:
 poetry run uvicorn demo.main:app
 ```
 
+# Docker
+
+The Docker container can be build with:
+
+```bash
+docker build -t weather_symphony .
+```
+
+Then run it using:
+
+```bash
+docker run -d -p 80:80 weather_symphony
+```
+
 # Scenes
 
 - overcast
