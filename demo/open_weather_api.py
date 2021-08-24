@@ -9,12 +9,12 @@ chunk_size = 4096
 async def get_weather_data(
     session: ClientSession,
     filename: str,
-    date_string: str,
+    date_obj: date,
     latitude: str,
     longitude: str,
     apiKey: str,
 ):
-    utc_timestamp = calendar.timegm(date.fromisoformat(date_string).timetuple())
+    utc_timestamp = calendar.timegm(date_obj.timetuple())
     url = "http://api.openweathermap.org/data/2.5/onecall/timemachine"
     params = {"lat": latitude, "lon": longitude, "dt": utc_timestamp, "appid": apiKey}
     print("querying api=", url, params)

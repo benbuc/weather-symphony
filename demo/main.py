@@ -48,7 +48,7 @@ async def root():
 
 @app.get("/api/")
 async def api(
-    date_string: str = Query(..., regex="^\\d{4}-\\d{2}-\\d{2}$"),
+    date_string: str = Query(..., alias="date", regex="^\\d{4}-\\d{2}-\\d{2}$"),
     latitude: str = Query(
         ...,
         regex="^(\\+|-)?(?:90(?:(?:\\.0{1,8})?)|(?:[0-9]|[1-8][0-9])(?:(?:\\.[0-9]{1,8})?))$",  # noqa: E501
@@ -62,7 +62,7 @@ async def api(
 ):
     latitude: float = round(float(latitude) * 1000) / 1000
     longitude: float = round(float(longitude) * 1000) / 1000
-    date_obj = date.fromisoformat(date_string)
+    date_obj: date = date.fromisoformat(date_string)
 
     def progressReportPacket(step_name, progress=None, from_cache=False, failed=False):
         return (
@@ -80,7 +80,7 @@ async def api(
     async def iterfile():
         yield progressReportPacket("Call Weather API", progress=None)
         global session
-        filename = f"cache/{latitude}_{longitude}_{date}.json"
+        filename = f"cache/{latitude}_{longitude}_{date_obj}.json"
         if os.path.isfile(filename):
             print("request cached=", filename)
             yield progressReportPacket(
@@ -89,7 +89,7 @@ async def api(
         else:
             try:
                 await get_weather_data(
-                    session, filename, date, latitude, longitude, apiKey
+                    session, filename, date_obj, latitude, longitude, apiKey
                 )
             except ClientError as ex:
                 print("api call failed=", ex)
