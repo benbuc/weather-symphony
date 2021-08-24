@@ -108,7 +108,7 @@ async def api(
         )
 
     async def iterfile():
-        filename = f"{latitude}_{longitude}_{date_obj}"
+        filename = f"{latitude}_{longitude}_{date_obj}_{seed}"
 
         # Call Weather API ------------------------------------------
         yield progressReportPacket("Call Weather API", progress=None)
