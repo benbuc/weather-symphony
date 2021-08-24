@@ -59,58 +59,70 @@
   <body>
     <h1>Weather Symphony</h1>
     <main>
-      <ul>
-        <li>
-          <label for="coordLat" class="coordInput">
-            Latitude:
-            <input
-              type="number"
-              id="coordLat"
-              value="52.394"
-              min="-90.0"
-              max="90.0"
-              step="0.001"
-              pattern="^(\+|-)?(?:90(?:(?:\.0{1,3})?)|(?:[0-9]|[1-8][0-9])(?:(?:\.[0-9]{1,3})?))$"
-            />°
-            <output id="coordLatIndicator">N</output>
-          </label>
-          <label for="coordLong" class="coordInput">
-            Longitude:
-            <input
-              type="number"
-              id="coordLong"
-              value="13.133"
-              min="-180.0"
-              max="180.0"
-              step="0.001"
-              pattern="^(\+|-)?(?:180(?:(?:\.0{1,3})?)|(?:[0-9]|[1-9][0-9]|1[0-7][0-9])(?:(?:\.[0-9]{1,3})?))$"
-            />°
-            <output id="coordLongIndicator">E</output>
-          </label>
-          <button onclick="useDeviceLocation()">Use Device Location</button>
-        </li>
-        <li>
-          <label for="generatorSeed">
-            Seed:
-            <input type="number" id="generatorSeed" />
-          </label>
-        </li>
-        <li>
-        <li>
-          <label for="weatherDate">
-            Date:
-            <input type="date" id="weatherDate" />
-          </label>
-        </li>
-        <li>
-          <button onclick="loadWeatherSymphony()">Load<!--Pause/Play--></button>
-        </li>
-        <li>
-          <ul id="progressList"></ul>
-        </li>
-      </ul>
+      <form>
+        <ul>
+          <li>
+            <label for="coordLat" class="coordInput">
+              Latitude:
+              <input
+                type="number"
+                id="coordLat"
+                value="52.394"
+                required
+                min="-90.0"
+                max="90.0"
+                step="0.001"
+                pattern="^(\+|-)?(?:90(?:(?:\.0{1,3})?)|(?:[0-9]|[1-8][0-9])(?:(?:\.[0-9]{1,3})?))$"
+              />°
+              <output id="coordLatIndicator">N</output>
+            </label>
+            <label for="coordLong" class="coordInput">
+              Longitude:
+              <input
+                type="number"
+                id="coordLong"
+                value="13.133"
+                required
+                min="-180.0"
+                max="180.0"
+                step="0.001"
+                pattern="^(\+|-)?(?:180(?:(?:\.0{1,3})?)|(?:[0-9]|[1-9][0-9]|1[0-7][0-9])(?:(?:\.[0-9]{1,3})?))$"
+              />°
+              <output id="coordLongIndicator">E</output>
+            </label>
+            <button onclick="useDeviceLocation()">Use Device Location</button>
+          </li>
+          <li>
+            <label for="generatorSeed">
+              Seed:
+              <input type="number" id="generatorSeed" value="0" required maxlength="64"/>
+            </label>
+          </li>
+          <li>
+            <label for="weatherDate">
+              API Key:
+              <input type="password" id="apiKey" required pattern="^[0-9a-f]{32}$"/>
+            </label>
+            <p>Get your API key here: <a href="https://home.openweathermap.org/users/sign_up" title="Get API key">openweathermap.org by OpenWeather</a></p>
+          </li>
+          <li>
+            <label for="weatherDate">
+              Date (UTC):
+              <input type="date" id="weatherDate" required />
+            </label>
+          </li>
+          <li>
+            <button type="submit">Load</button>
+          </li>
+          <li>
+            <ul id="progressList"></ul>
+          </li>
+        </ul>
+      </form>
     </main>
     <script>
+      const form = document.getElementsByTagName("form")[0];
+
       const latInput = document.getElementById("coordLat");
       const latIndicator = document.getElementById("coordLatIndicator");
       const longInput = document.getElementById("coordLong");
@@ -150,20 +162,32 @@
       datePicker.min = new Date().setDate(today.getDate() - 5);
       datePicker.max = today;
 
+      const apiKeyInput = document.getElementById("apiKey");
+      const seedInput = document.getElementById("generatorSeed");
+
       const progressList = document.getElementById("progressList");
+
+      form.addEventListener("submit", function(evt) {
+        evt.preventDefault();
+        loadWeatherSymphony();
+      });
 
       async function loadWeatherSymphony(evt) {
         const requestDate = datePicker.valueAsDate;
         const latitude = Number.parseFloat(latInput.value);
         const longitude = Number.parseFloat(longInput.value);
-        const url = new URL(window.location.href + "api/");
+        const seed = Number.parseInt(seedInput.value);
+        const apiKey = apiKeyInput.value;
+        const url = new URL(location.origin + "/api/");
         const params = {
           date: requestDate.toISOString().split("T")[0],
           latitude,
-          longitude
+          longitude,
+          apiKey,
         };
+        if(seed) params.seed = seed;
         url.search = new URLSearchParams(params).toString();
-        console.log(`Requesting MIDI`, params, url);
+        console.log(`Requesting MIDI`, params, url.toString());
 
         progressList.innerHTML = "";
         fetch(url)
