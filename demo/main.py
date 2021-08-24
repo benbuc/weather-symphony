@@ -1,5 +1,7 @@
 import asyncio
 import json
+import tempfile
+from asyncio import create_subprocess_exec, subprocess
 from datetime import date
 from pathlib import Path
 
@@ -141,15 +143,109 @@ async def api(
                 yield progressReportPacket("Generate MIDI", failed=True)
                 return
 
-        yield progressReportPacket("Convert to audio", progress=0)
-        await asyncio.sleep(1.5)
-        yield progressReportPacket("Convert to audio", progress=50)
-        await asyncio.sleep(1.5)
-        yield progressReportPacket("Convert to audio", progress=100)
+        # Convert to audio ------------------------------------------
+        yield progressReportPacket("Convert to audio", progress=None)
+
+        async def execute_async(executable_name, arguments=[]):
+            process = await create_subprocess_exec(
+                executable_name, *arguments, stdin=None, stdout=subprocess.DEVNULL
+            )
+            return await process.wait()
+
+        audio_ogg_file: Path = cache_path / f"{filename}.ogg"
+        audio_mp3_file: Path = cache_path / f"{filename}.mp3"
+        not_exist_count = 0
+        if not audio_ogg_file.exists():
+            not_exist_count += 1
+        if not audio_mp3_file.exists():
+            not_exist_count += 1
+        if not_exist_count == 0:
+            print("Audio cache hit=", audio_ogg_file, audio_mp3_file)
+            yield progressReportPacket(
+                "Convert to audio",
+                progress=100,
+                from_cache=True,
+                filename=f"{filename}.ogg",
+            )
+        else:
+            yield progressReportPacket("Convert to audio", progress=0)
+            with tempfile.NamedTemporaryFile(
+                mode="w+b", suffix=".raw", delete=True
+            ) as temp_file:
+                print("Audio write temp file=", temp_file.name)
+                # fmt: off
+                fluidsynth_args = [
+                    "-F", temp_file.name,
+                    "/usr/share/sounds/sf2/FluidR3_GM.sf2",
+                    "-O", "float",
+                    "-L", "1",
+                    "-r", "48000",
+                    "-T", "raw",
+                    "-E", "little",
+                    midi_data_file,
+                ]
+                # fmt: on
+                return_code = await execute_async("fluidsynth", fluidsynth_args)
+
+                if return_code == 0:
+                    yield progressReportPacket("Convert to audio", progress=30)
+                    if not audio_ogg_file.exists():
+                        print("Audio write file=", audio_ogg_file)
+                        # fmt: off
+                        ffmpeg_ogg_args = [
+                            "-y",
+                            "-f", "f32le",
+                            "-ar", "48000",
+                            "-ac", "2",
+                            "-i", temp_file.name,
+                            "-c:a", "libopus",
+                            "-b:a", "52K",
+                            "-compression_level", "10",
+                            "-vbr", "on",
+                            "-frame_duration", "40",
+                            "-application", "audio",
+                            "-mapping_family", "0",
+                            audio_ogg_file,
+                        ]
+                        # fmt: on
+                        return_code = await execute_async("ffmpeg", ffmpeg_ogg_args)
+                        if return_code == 0:
+                            print("Audio write file sucess=", audio_ogg_file)
+                            yield progressReportPacket(
+                                "Convert to audio",
+                                progress=100 if not_exist_count == 1 else 65,
+                                filename=f"{filename}.ogg",
+                            )
+                        else:
+                            print("Audio conversion failed=", return_code)
+                            yield progressReportPacket("Convert to audio", failed=True)
+                    if not audio_mp3_file.exists():
+                        print("Audio write file=", audio_mp3_file)
+                        # fmt: off
+                        ffmpeg_mp3_args = [
+                            "-y",
+                            "-f", "f32le",
+                            "-ar", "48000",
+                            "-ac", "2",
+                            "-i", temp_file.name,
+                            "-c:a", "libmp3lame",
+                            "-b:a", "64k",
+                            audio_mp3_file,
+                        ]
+                        # fmt: on
+                        return_code = await execute_async("ffmpeg", ffmpeg_mp3_args)
+                        if return_code == 0:
+                            print("Audio write file sucess=", audio_mp3_file)
+                            yield progressReportPacket(
+                                "Convert to audio",
+                                progress=100,
+                                filename=f"{filename}.mp3",
+                            )
+                        else:
+                            print("Audio conversion failed=", return_code)
+                            yield progressReportPacket("Convert to audio", failed=True)
+                else:
+                    print("Audio conversion failed=", return_code)
+                    yield progressReportPacket("Convert to audio", failed=True)
 
     return StreamingResponse(iterfile(), media_type="text/plain")
-
-
-# with tempfile.NamedTemporaryFile(mode="w+b", suffix=".png", delete=False) as FOUT:
-#     FOUT.write(img)
-#     return FileResponse(FOUT.name, media_type="image/png")
