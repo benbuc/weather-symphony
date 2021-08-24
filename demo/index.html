@@ -35,25 +35,32 @@
         display: flex;
         gap: 1em;
       }
-      ul#progressList > li > * {
-        flex: 2 1 20em;
+      ul#progressList li::before {
+        flex: 0 0 1em;
+        display: inline-block;
+        content: '⌛';
+        color: black;
+        text-align: center;
       }
-      ul#progressList > li > :first-child {
+      ul#progressList > li output {
+        display: inline-block;
         flex: 1 1 10em;
       }
-      ul#progressList progress.completed {
+      ul#progressList > li progress {
+        display: inline-block;
+        flex: 2 1 20em;
+      }
+      ul#progressList li.completed {
         background-color: transparent;
         position: relative;
         flex: 0 0 0;
         padding-right: 1em;
       }
-      ul#progressList progress.completed::after {
-        position: absolute;
+      ul#progressList li.completed::before {
         content: '✔';
         color: green;
-        top: 0;
       }
-      ul#progressList li.cached progress::after {
+      ul#progressList li.completed.cached::before {
         color: #555 !important;
       }
     </style>
@@ -235,7 +242,7 @@
           let element = progress.element;
           let progressElement = element.querySelector("progress");
           if(percentage == 100) {
-            progressElement.classList.add("completed");
+            element.classList.add("completed");
           }
           if(percentage !== null) {
             progressElement.value = percentage;
@@ -267,6 +274,7 @@
         }
         if(status.cached) {
           progress.element.classList.add("cached");
+          progress.element.setAttribute("title", "cached");
         }
       }
     </script>
