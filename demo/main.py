@@ -1,7 +1,7 @@
 import asyncio
 import json
-import os.path
 from datetime import date
+from os import makedirs, path
 
 from aiohttp import ClientError, ClientSession, ClientTimeout, DummyCookieJar
 from fastapi import FastAPI, Query
@@ -30,6 +30,8 @@ async def startup_event():
     cookie_jar = DummyCookieJar()
     global session
     session = await ClientSession(timeout=timeout, cookie_jar=cookie_jar).__aenter__()
+    if not path.exists("cache"):
+        makedirs("cache")
 
 
 @app.on_event("shutdown")
@@ -81,7 +83,7 @@ async def api(
         yield progressReportPacket("Call Weather API", progress=None)
         global session
         filename = f"cache/{latitude}_{longitude}_{date_obj}.json"
-        if os.path.isfile(filename):
+        if path.isfile(filename):
             print("request cached=", filename)
             yield progressReportPacket(
                 "Call Weather API", progress=100, from_cache=True
