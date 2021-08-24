@@ -23,6 +23,7 @@ class PercussionSection(HarmonySection):
             Scene.NIGHT_CHILLY: (0, 0.3, 0.5, 0),
             Scene.NIGHT_WARM: (0, 0.8, 0.4, 0),
         }
+        self.rhythm_settings_chords = {}
         self.arpeggio_probabilities = {
             Scene.OVERCAST_THUNDERSTORM: 1.0,
             Scene.OVERCAST_WINDY: 1.0,
