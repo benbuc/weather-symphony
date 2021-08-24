@@ -6,7 +6,7 @@ from datetime import date
 from pathlib import Path
 
 from aiohttp import ClientError, ClientSession, ClientTimeout, DummyCookieJar
-from fastapi import FastAPI, Query
+from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, StreamingResponse
 from mido import MidiFile
@@ -51,6 +51,22 @@ async def root():
     return FileResponse("./demo/index.html")
 
 
+@app.get("/files/{filename}")
+async def file(filename):
+    file: Path = cache_path / filename
+    if file.suffix in [".json", ".midi", ".ogg", ".mp3"]:
+        if file.exists():
+            if file.suffix == ".json":
+                return FileResponse(file, media_type="application/json")
+            if file.suffix == ".midi":
+                return FileResponse(file, filename=filename, media_type="audio/midi")
+            if file.suffix == ".ogg":
+                return FileResponse(file, media_type="audio/opus")
+            if file.suffix == ".mp3":
+                return FileResponse(file, media_type="audio/mpeg")
+    raise HTTPException(status_code=404, detail="Item not found")
+
+
 @app.get("/api/")
 async def api(
     date_string: str = Query(..., alias="date", regex="^\\d{4}-\\d{2}-\\d{2}$"),
@@ -70,7 +86,12 @@ async def api(
     date_obj: date = date.fromisoformat(date_string)
 
     def progressReportPacket(
-        step_name, progress=None, from_cache=False, failed=False, filename=None
+        step_name,
+        progress=None,
+        from_cache=False,
+        failed=False,
+        filename=None,
+        mime_type=None,
     ):
         return (
             json.dumps(
@@ -80,6 +101,7 @@ async def api(
                     "cached": from_cache,
                     "failed": failed,
                     "filename": filename,
+                    "mimeType": mime_type,
                 }
             )
             + "\n\n"
@@ -98,7 +120,8 @@ async def api(
                 "Call Weather API",
                 progress=100,
                 from_cache=True,
-                filename=f"{filename}.json",
+                filename=filename,
+                mime_type="application/json",
             )
         else:
             try:
@@ -111,7 +134,10 @@ async def api(
                     apiKey,
                 )
                 yield progressReportPacket(
-                    "Call Weather API", progress=100, filename=f"{filename}.json"
+                    "Call Weather API",
+                    progress=100,
+                    filename=filename,
+                    mime_type="application/json",
                 )
             except ClientError as ex:
                 print("API call failed=", ex)
@@ -127,7 +153,8 @@ async def api(
                 "Generate MIDI",
                 progress=100,
                 from_cache=True,
-                filename=f"{filename}.midi",
+                filename=filename,
+                mime_type="audio/midi",
             )
         else:
             try:
@@ -136,7 +163,10 @@ async def api(
                 midi_data.save(midi_data_file)
                 print("MIDI write file sucess=", midi_data_file)
                 yield progressReportPacket(
-                    "Generate MIDI", progress=100, filename=f"{filename}.midi"
+                    "Generate MIDI",
+                    progress=100,
+                    filename=filename,
+                    mime_type="audio/midi",
                 )
             except Exception as ex:
                 print("MIDI generation failed=", ex)
@@ -165,7 +195,8 @@ async def api(
                 "Convert to audio",
                 progress=100,
                 from_cache=True,
-                filename=f"{filename}.ogg",
+                filename=filename,
+                mime_type="audio/opus",
             )
         else:
             yield progressReportPacket("Convert to audio", progress=0)
@@ -214,7 +245,8 @@ async def api(
                             yield progressReportPacket(
                                 "Convert to audio",
                                 progress=100 if not_exist_count == 1 else 65,
-                                filename=f"{filename}.ogg",
+                                filename=filename,
+                                mime_type="audio/opus",
                             )
                         else:
                             print("Audio conversion failed=", return_code)
@@ -239,7 +271,8 @@ async def api(
                             yield progressReportPacket(
                                 "Convert to audio",
                                 progress=100,
-                                filename=f"{filename}.mp3",
+                                filename=filename,
+                                mime_type="audio/mpeg",
                             )
                         else:
                             print("Audio conversion failed=", return_code)
