@@ -73,7 +73,7 @@ def main(args):
         args.output.parent.mkdir(parents=True, exist_ok=True)
 
     logging.debug(f"Loading input from file {args.output}")
-    midi_data: MidiFile = get_mido(args.input)
+    midi_data: MidiFile = get_mido(args.input, args.seed or 0)
     midi_data.save(args.output)
     logging.debug(f"Saved midi file to {args.output}")
 
@@ -82,6 +82,7 @@ def cli():
     parser = argparse.ArgumentParser()
     parser.add_argument("-i", "--input", type=Path, required=True)
     parser.add_argument("-o", "--output", type=Path, required=True)
+    parser.add_argument("-s", "--seed", type=int)
 
     args = parser.parse_args()
     main(args)
