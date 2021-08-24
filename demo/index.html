@@ -53,6 +53,9 @@
         color: green;
         top: 0;
       }
+      ul#progressList li.cached progress::after {
+        color: #555 !important;
+      }
     </style>
   </head>
 
@@ -231,12 +234,14 @@
         function setProgress(percentage) {
           let element = progress.element;
           let progressElement = element.querySelector("progress");
-          if(percentage == 100)
+          if(percentage == 100) {
             progressElement.classList.add("completed");
-          if(percentage !== null)
+          }
+          if(percentage !== null) {
             progressElement.value = percentage;
-          else
+          } else {
             progressElement.removeAttribute("value");
+          }
         }
 
         if(status.step != progress.stepName) {
@@ -257,8 +262,12 @@
             progress.stepName = status.step;
           }
         }
-        if(status.progress !== undefined)
+        if(status.progress !== undefined) {
           setProgress(status.progress);
+        }
+        if(status.cached) {
+          progress.element.classList.add("cached");
+        }
       }
     </script>
   </body>

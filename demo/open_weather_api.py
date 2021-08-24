@@ -6,7 +6,7 @@ from aiohttp import ClientResponseError, ClientSession
 chunk_size = 4096
 
 
-async def get_weather_data(
+async def write_weather_data(
     session: ClientSession,
     filename: str,
     date_obj: date,
@@ -34,7 +34,7 @@ async def get_weather_data(
                 history=response.history,
             )
         else:
-            print("writing into cache=", filename)
+            print("API cache file=", filename)
             with open(filename, "xb") as fd:
                 while True:
                     chunk = await response.content.read(chunk_size)

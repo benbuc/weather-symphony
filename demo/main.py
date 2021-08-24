@@ -8,7 +8,7 @@ from fastapi import FastAPI, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, StreamingResponse
 
-from demo.open_weather_api import get_weather_data
+from demo.open_weather_api import write_weather_data
 from weather_symphony.main import get_mido
 
 app = FastAPI()
@@ -66,7 +66,9 @@ async def api(
     longitude: float = round(float(longitude) * 1000) / 1000
     date_obj: date = date.fromisoformat(date_string)
 
-    def progressReportPacket(step_name, progress=None, from_cache=False, failed=False):
+    def progressReportPacket(
+        step_name, progress=None, from_cache=False, failed=False, filename=None
+    ):
         return (
             json.dumps(
                 {
@@ -74,31 +76,42 @@ async def api(
                     "progress": progress,
                     "cached": from_cache,
                     "failed": failed,
+                    "filename": filename,
                 }
             )
             + "\n\n"
         )
 
     async def iterfile():
+        filename = f"{latitude}_{longitude}_{date_obj}"
+
+        # Call Weather API ------------------------------------------
         yield progressReportPacket("Call Weather API", progress=None)
         global session
-        filename = f"cache/{latitude}_{longitude}_{date_obj}.json"
-        if path.isfile(filename):
-            print("request cached=", filename)
+        json_weather_data_file = f"cache/{filename}.json"
+        if path.isfile(json_weather_data_file):
+            print("API cache hit=", json_weather_data_file)
             yield progressReportPacket(
-                "Call Weather API", progress=100, from_cache=True
+                "Call Weather API", progress=100, from_cache=True, filename=filename
             )
         else:
             try:
-                await get_weather_data(
-                    session, filename, date_obj, latitude, longitude, apiKey
+                await write_weather_data(
+                    session,
+                    json_weather_data_file,
+                    date_obj,
+                    latitude,
+                    longitude,
+                    apiKey,
                 )
             except ClientError as ex:
-                print("api call failed=", ex)
+                print("API call failed=", ex)
                 yield progressReportPacket(
                     "Call Weather API", progress=None, failed=True
                 )
                 return
+
+        # Generate MIDI ---------------------------------------------
         yield progressReportPacket("Generate MIDI", progress=None)
         get_mido(date_obj, 0)  # TODO
         await asyncio.sleep(1.5)
