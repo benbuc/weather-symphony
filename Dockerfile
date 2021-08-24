@@ -1,7 +1,9 @@
 # syntax = docker/dockerfile:1.2
 FROM python:latest
 
-RUN apt update; apt install -y libasound2-dev fluid-soundfont-gm fluidsynth ffmpeg
+RUN apt update; apt install -y libasound2-dev libjack-dev
+RUN apt install -y fluid-soundfont-gm fluidsynth
+RUN apt install -y ffmpeg
 
 EXPOSE 80
 WORKDIR /app
