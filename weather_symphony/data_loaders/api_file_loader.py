@@ -1,19 +1,17 @@
 import json
+from pathlib import Path
 
 import yaml
 
-from weather_symphony.data_loaders.data_loader import DataLoader
 
-
-class APIFileLoader(DataLoader):
-    def __init__(self, file, date):
-        super().__init__(date)
+class APIFileLoader:
+    def __init__(self, file: Path):
         self.file = file
 
     def get_weather_data(self):
-        if self.file.endswith(".json"):
+        if self.file.suffix == ".json":
             hourly_data = json.load(open(self.file, "r"))["hourly"]
-        elif self.file.endswith(".yaml"):
+        elif self.file.suffix == ".yaml":
             hourly_data = yaml.safe_load(open(self.file, "r"))
         else:
             raise ValueError("unknown file type")

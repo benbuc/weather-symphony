@@ -1,11 +1,9 @@
 import argparse
-import datetime
 import logging
-import os
 import random
 from pathlib import Path
 
-import mido
+from mido import MidiFile
 
 from weather_symphony.components import HarmonyGenerator, SceneParser
 from weather_symphony.components.sections import (
@@ -46,12 +44,12 @@ def performSections(weather_data, scenes, harmony):
     return performances
 
 
-def get_mido(date, seed=0):
+def get_mido(filepath, seed=0):
     random.seed(seed)
 
     logging.debug("Weather Symphony Generator started")
 
-    data_loader = APIFileLoader("./weather_data/berlin_2021_07_06_edited.json", date)
+    data_loader = APIFileLoader(filepath)
     weather_data = data_loader.get_weather_data()
 
     scene_parser = SceneParser(weather_data)
@@ -62,7 +60,7 @@ def get_mido(date, seed=0):
 
     performances = performSections(weather_data, scenes, harmony)
 
-    mid = mido.MidiFile()
+    mid = MidiFile()
     mid.ticks_per_beat = Meter.ticks_per_beat
     for performance in performances:
         mid.tracks.append(performance)
@@ -74,29 +72,16 @@ def main(args):
     if args.output:
         args.output.parent.mkdir(parents=True, exist_ok=True)
 
-    date = args.date
-    if not date:
-        date = datetime.date.today()
-    mid = get_mido(date)
-
-    if args.output:
-        mid.save(args.output)
-    if os.name == "nt":  # Windows
-        logging.info("Starting live audio for windows")
-        output = mido.open_output()
-        for msg in mid.play(meta_messages=True):
-            if msg.is_meta:
-                continue
-            output.send(msg)
-    else:
-        if args.output:
-            os.system(f"timidity {args.output}")
+    logging.debug(f"Loading input from file {args.output}")
+    midi_data: MidiFile = get_mido(args.input)
+    midi_data.save(args.output)
+    logging.debug(f"Saved midi file to {args.output}")
 
 
 def cli():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-d", "--date", default=None, type=datetime.date.fromisoformat)
-    parser.add_argument("-o", "--output", type=Path)
+    parser.add_argument("-i", "--input", type=Path, required=True)
+    parser.add_argument("-o", "--output", type=Path, required=True)
 
     args = parser.parse_args()
     main(args)
