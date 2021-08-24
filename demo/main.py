@@ -1,12 +1,13 @@
 import asyncio
 import json
 from datetime import date
-from os import makedirs, path
+from pathlib import Path
 
 from aiohttp import ClientError, ClientSession, ClientTimeout, DummyCookieJar
 from fastapi import FastAPI, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, StreamingResponse
+from mido import MidiFile
 
 from demo.open_weather_api import write_weather_data
 from weather_symphony.main import get_mido
@@ -22,6 +23,7 @@ app.add_middleware(
 )
 
 session: ClientSession = None
+cache_path: Path = Path("cache")
 
 
 @app.on_event("startup")
@@ -30,8 +32,7 @@ async def startup_event():
     cookie_jar = DummyCookieJar()
     global session
     session = await ClientSession(timeout=timeout, cookie_jar=cookie_jar).__aenter__()
-    if not path.exists("cache"):
-        makedirs("cache")
+    cache_path.mkdir(exist_ok=True)
 
 
 @app.on_event("shutdown")
@@ -88,8 +89,8 @@ async def api(
         # Call Weather API ------------------------------------------
         yield progressReportPacket("Call Weather API", progress=None)
         global session
-        json_weather_data_file = f"cache/{filename}.json"
-        if path.isfile(json_weather_data_file):
+        json_weather_data_file: Path = cache_path / f"{filename}.json"
+        if json_weather_data_file.exists():
             print("API cache hit=", json_weather_data_file)
             yield progressReportPacket(
                 "Call Weather API", progress=100, from_cache=True, filename=filename
@@ -113,8 +114,24 @@ async def api(
 
         # Generate MIDI ---------------------------------------------
         yield progressReportPacket("Generate MIDI", progress=None)
-        get_mido(date_obj, 0)  # TODO
-        await asyncio.sleep(1.5)
+        midi_data_file: Path = cache_path / f"{filename}.midi"
+        if midi_data_file.exists():
+            print("MIDI cache hit=", midi_data_file)
+            yield progressReportPacket(
+                "Generate MIDI", progress=100, from_cache=True, filename=filename
+            )
+        else:
+            try:
+                midi_data: MidiFile = get_mido(json_weather_data_file, seed)
+                midi_data.save(midi_data_file)
+                yield progressReportPacket(
+                    "Generate MIDI", progress=100, filename=filename
+                )
+            except IOError as ex:
+                print("MIDI generation failed=", ex)
+                yield progressReportPacket("Generate MIDI", progress=None, failed=True)
+                return
+
         yield progressReportPacket("Convert to audio", progress=0)
         await asyncio.sleep(1.5)
         yield progressReportPacket("Convert to audio", progress=50)
