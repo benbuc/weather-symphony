@@ -50,17 +50,27 @@
         display: inline-block;
         flex: 2 1 20em;
       }
-      ul#progressList li.completed {
+      ul#progressList > li.completed progress {
+        display: none;
+        flex: 0 0 0;
+      }
+      ul#progressList > li.completed {
         background-color: transparent;
         position: relative;
         flex: 0 0 0;
         padding-right: 1em;
       }
-      ul#progressList li.completed::before {
+      ul#progressList > li.completed .result {
+        flex: 2 1 20em;
+      }
+      ul#progressList > li.completed .result > * {
+        display: block;
+      }
+      ul#progressList > li.completed::before {
         content: '✔';
         color: green;
       }
-      ul#progressList li.completed.cached::before {
+      ul#progressList > li.completed.cached::before {
         color: #555 !important;
       }
     </style>
@@ -238,12 +248,59 @@
       async function processProgress(status) {
         console.log(status, progress);
 
+        function createElementForFile(filename, mimeType) {
+          let container = document.createElement("section");
+          container.classList.add("result");
+          switch(mimeType) {
+            case "application/json":
+              let openLink = document.createElement("a");
+              openLink.setAttribute("href", `${location.origin}/files/${filename}.json`);
+              openLink.setAttribute("target", "_blank");
+              openLink.textContent = "Open API response (JSON)";
+              container.appendChild(openLink);
+              console.log(openLink);
+              break;
+            case "audio/midi":
+              let downloadLink = document.createElement("a");
+              downloadLink.setAttribute("href", `${location.origin}/files/${filename}.midi`);
+              downloadLink.setAttribute("target", "_blank");
+              downloadLink.textContent = "Download generated MIDI file";
+              container.appendChild(downloadLink);
+              console.log(downloadLink);
+              break;
+            case "audio/opus":
+            case "audio/mpeg":
+              let audioElement = document.createElement("audio");
+              audioElement.setAttribute("controls", true);
+              audioElement.textContent = "Your browser does not support the audio element.";
+              let opusSource = document.createElement("source");
+              opusSource.setAttribute("src", `${location.origin}/files/${filename}.ogg`);
+              opusSource.setAttribute("type", "audio/opus");
+              audioElement.appendChild(opusSource);
+              let mp3Source = document.createElement("source");
+              mp3Source.setAttribute("src", `${location.origin}/files/${filename}.mp3`);
+              mp3Source.setAttribute("type", "audio/mpeg");
+              audioElement.appendChild(mp3Source);
+              container.appendChild(audioElement);
+              console.log(audioElement);
+              let downloadLinkOpus = document.createElement("a");
+              downloadLinkOpus.setAttribute("href", `${location.origin}/files/${filename}.ogg`);
+              downloadLinkOpus.setAttribute("target", "_blank");
+              downloadLinkOpus.textContent = "Download generated OGG/Opus file (*better quality)";
+              container.appendChild(downloadLinkOpus);
+              let downloadLinkMp3 = document.createElement("a");
+              downloadLinkMp3.setAttribute("href", `${location.origin}/files/${filename}.mp3`);
+              downloadLinkMp3.setAttribute("target", "_blank");
+              downloadLinkMp3.textContent = "Download generated MP3 file";
+              container.appendChild(downloadLinkMp3);
+              break;
+          }
+          return container;
+        }
+
         function setProgress(percentage) {
           let element = progress.element;
           let progressElement = element.querySelector("progress");
-          if(percentage == 100) {
-            element.classList.add("completed");
-          }
           if(percentage !== null) {
             progressElement.value = percentage;
           } else {
@@ -275,6 +332,13 @@
         if(status.cached) {
           progress.element.classList.add("cached");
           progress.element.setAttribute("title", "cached");
+        }
+        if(status.progress == 100) {
+          progress.element.classList.add("completed");
+          if(status.filename) {
+            let fileElement = createElementForFile(status.filename, status.mimeType);
+            if(fileElement) progress.element.appendChild(fileElement);
+          }
         }
       }
     </script>
