@@ -1,5 +1,6 @@
 import calendar
 from datetime import date
+from pathlib import Path
 
 from aiohttp import ClientResponseError, ClientSession
 
@@ -8,7 +9,7 @@ chunk_size = 4096
 
 async def write_weather_data(
     session: ClientSession,
-    filename: str,
+    filename: Path,
     date_obj: date,
     latitude: str,
     longitude: str,
@@ -34,7 +35,7 @@ async def write_weather_data(
                 history=response.history,
             )
         else:
-            print("API cache file=", filename)
+            print("API write file=", filename)
             with open(filename, "xb") as fd:
                 while True:
                     chunk = await response.content.read(chunk_size)

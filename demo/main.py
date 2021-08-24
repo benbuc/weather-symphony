@@ -93,7 +93,10 @@ async def api(
         if json_weather_data_file.exists():
             print("API cache hit=", json_weather_data_file)
             yield progressReportPacket(
-                "Call Weather API", progress=100, from_cache=True, filename=filename
+                "Call Weather API",
+                progress=100,
+                from_cache=True,
+                filename=f"{filename}.json",
             )
         else:
             try:
@@ -105,11 +108,12 @@ async def api(
                     longitude,
                     apiKey,
                 )
+                yield progressReportPacket(
+                    "Call Weather API", progress=100, filename=f"{filename}.json"
+                )
             except ClientError as ex:
                 print("API call failed=", ex)
-                yield progressReportPacket(
-                    "Call Weather API", progress=None, failed=True
-                )
+                yield progressReportPacket("Call Weather API", failed=True)
                 return
 
         # Generate MIDI ---------------------------------------------
@@ -118,18 +122,23 @@ async def api(
         if midi_data_file.exists():
             print("MIDI cache hit=", midi_data_file)
             yield progressReportPacket(
-                "Generate MIDI", progress=100, from_cache=True, filename=filename
+                "Generate MIDI",
+                progress=100,
+                from_cache=True,
+                filename=f"{filename}.midi",
             )
         else:
             try:
+                print("MIDI write file=", midi_data_file)
                 midi_data: MidiFile = get_mido(json_weather_data_file, seed)
                 midi_data.save(midi_data_file)
+                print("MIDI write file sucess=", midi_data_file)
                 yield progressReportPacket(
-                    "Generate MIDI", progress=100, filename=filename
+                    "Generate MIDI", progress=100, filename=f"{filename}.midi"
                 )
-            except IOError as ex:
+            except Exception as ex:
                 print("MIDI generation failed=", ex)
-                yield progressReportPacket("Generate MIDI", progress=None, failed=True)
+                yield progressReportPacket("Generate MIDI", failed=True)
                 return
 
         yield progressReportPacket("Convert to audio", progress=0)
