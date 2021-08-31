@@ -11,7 +11,7 @@ Using the link above you can access an instance of this interface to play around
 
 ### Docker
 
-We created a little Dockerfile to ease the setup of this project. After cloning the repository you can use the following steps to build and run the container.
+We created a Dockerfile to ease the setup of this project. After cloning the repository you can use the following steps to build and run the container.
 
 1. The Docker container for the live demo can be build with:
    ```bash
@@ -66,10 +66,10 @@ Perform steps 1. to 3. from the "Run Manually" chapter
    -s SEED, --seed SEED
    ```
 
-When running the generator, you have mutliple parameters to hand over to the program.
+When running the generator, you have multiple parameters to hand over to the program.
 You need to specify the input `json` or `yaml` file. Look at the `weather_data/` directory for some sample files.
 The output parameters specifies the filepath to where the final MIDI-File is saved to.
-Optionally, you can also specify a seed which is used for the random generator. This way, the output symphony for a constant inpute file will be different.
+Optionally, you can also specify a seed which is used for the random generator. This way, the output symphony for a constant input file will be different.
 
 ## Development Setup
 
